@@ -48,7 +48,6 @@ app.use(
    authorizationParams: {
      response_type: "code id_token",
      audience: "https://expenses-api",
-     scope: "read:reports",
    },
    // 👆 add this 👆
  })
