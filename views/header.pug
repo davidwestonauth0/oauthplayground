@@ -3,17 +3,32 @@ ul(class='navigation', role='navigation')
     a(href='/')
       img(src='/images/auth0.png')
   li
-      a(href='/') Home
+      a(href='/authorization_code') authorization_code
   li
-      a(href='/expenses') Expenses
+      a(href='/authorization_code_pkce') authorization_code (PKCE)
+  li
+      a(href='/implicit') implicit
+  li
+      a(href='/password') ROPG
+  li
+      a(href='/client_credentials') client_credentials
+  li
+      a(href='/refresh_token') refresh_token
+  li
+      a(href='/device_code') device_code
+  li
+      a(href='/passwordless') passwordless
+  li
+      a(href='/mfa') mfa
+  li
+      a(href='/revoke') revoke
+  li
+      a(href='/register_client') register_client
   li.spacer
-  if user
-    li
-      a(href='/logout') Logout
-    li.profile
-      img.picture(src=user.picture)
-  else
-    li
-      a(href='/login') Login
-    li.profile
-      img(src='/images/profile.png')
+  li
+      a(href='/call_api') Call API
+  li
+      a(href='/user_info') user_info
+  li
+      a(href='/logmeout') logout
+

@@ -1,0 +1,262 @@
+extends layout
+
+block content
+
+  .content
+
+    table(style='width:100%;table-layout:fixed', border='0')
+
+          tr
+            td(style="vertical-align: top;text-align: left; max-width:40%; padding: 10px;")
+
+                if error
+                    h3(style="color: red; margin-left: 0px;padding-left: 0px !important;") Error
+                    pre
+                        code(id="error_details" class="prettyprint" style="word-break: break-all; white-space: normal;") error: #{error} #{response.statusCode} <br> error_description: #{error_description}
+
+                if access_token || id_token
+                    table(id="tokens")
+                        if id_token
+                            -
+                                id_token_decoded = parseJwt(id_token);
+                            tr
+                                td
+                                    a(href="#" alt="copy id_token", id="id_token_button" onclick="copyToClipboard('#id_token')" )
+                                     img(height="40px",src=`/images/icon-id-token.svg`)
+                                td
+                                    pre
+                                        code(id="id_token" class="prettyprint" style="word-break: break-all; white-space: normal;") #{id_token}
+                            tr
+                                td
+                                td
+                                    pre
+                                        code(id="id_token_decoded" class="prettyprint" style="word-break: break-all; white-space: normal;") #{JSON.stringify(id_token_decoded)}
+
+                        if access_token
+                            -
+                                access_token_decoded = parseJwt(access_token);
+                            tr
+                                td
+                                    a(href="#" alt="copy access_token", id="access_token_button" onclick="copyToClipboard('#access_token')" )
+                                        img(height="40px",src=`/images/icon-access-token.svg`)
+                                td
+                                    pre
+                                        code(id="access_token" class="prettyprint" style="word-break: break-all; white-space: normal;") #{access_token}
+                            tr
+                                td
+                                td
+                                    pre
+                                        code(id="access_token_decoded" class="prettyprint" style="word-break: break-all; white-space: normal;") #{JSON.stringify(access_token_decoded)}
+                        if refresh_token
+                            tr
+                                td
+                                    a(href="#" alt="copy refresh_token", id="refresh_token_button" onclick="copyToClipboard('#refresh_token')" )
+                                        img(height="40px",src=`/images/icon-refresh-token.svg`)
+                                td
+                                    pre
+                                        code(id="refresh_token" style="word-break: break-all; white-space: normal;") #{refresh_token}
+
+                else
+                    form(name="authorize" id="authorize")
+                        table(border='0' border-collapse: collapse;)
+                              tr
+                                td
+                                    p(class="required tooltip", data-toggle='tooltip', data-placement='right', title='Your applications ID') client_id:
+                                td
+                                    input(type="text" name="client_id" id="client_id" required style="width:400px" value=process.env.CLIENT_ID)
+                                    input(type="hidden" name="domain" id="domain" style="width:400px" value=process.env.DOMAIN)
+                              tr
+                                td
+                                    p(class="required tooltip" data-toggle='tooltip', data-placement='right', title='The URL to which Auth0 will redirect the browser after authorization has been granted by the user.') redirect_uri:
+                                td
+                                    input(type="text" required name="redirect_uri" id="redirect_uri" style="width:400px" value="http://localhost:3001/implicit")
+                              tr
+                                td
+                                    p(class="tooltip" data-toggle='tooltip', data-placement='right', title='The unique identifier of the target API you want to access.') audience:
+                                td
+                                    input(type="text" name="audience" id="audience" style="width:400px" value=process.env.AUDIENCE)
+                              tr
+                                td
+                                    p(class="tooltip" data-toggle='tooltip', data-placement='right', title='include offline_access to request refresh_token. Add read:test and/or write:test for testing RBAC. Add stepup:test for testing contextual MFA') scope:
+                                td
+                                    input(type="text" name="scope" id="scope" style="width:400px" value="openid profile email offline_access")
+                              tr
+                                td
+                                    p(class="required tooltip" data-toggle='tooltip', data-placement='right', title='how the authorization_code should be returned; in the query string or as a form POST') response_mode:
+                                td
+                                    select(name="response_mode" required id="response_mode" style="width:400px")
+                                      option(value=form_post) form_post
+                                      option(value=fragment) fragment
+                              tr
+                                td
+                                    p(class="required tooltip" data-toggle='tooltip', data-placement='right', title='This will specify the type of token you will receive at the end of the flow. Use token to get only an Access Token, id_token to get only an ID Token (if you dont plan on accessing an API), or id_token token to get both an ID Token and an Access Token.') response_type:
+                                td
+                                  select(name="response_type" required id="response_type" style="width:400px")
+                                    option(value=token id_token) token id_token
+                                    option(value=id_token) id_token
+                                    option(value=id_token) token
+                              tr
+                                td
+                                    p(class="required tooltip" data-toggle='tooltip', data-placement='right', title='An opaque value the clients adds to the initial request that Auth0 includes when redirecting the back to the client. This value must be used by the client to prevent CSRF attacks.') state:
+                                td
+                                    input(type="text" name="state" required id="state" style="width:400px" value="somestatevalue")
+                              tr
+                                td
+                                    p(class="required tooltip" data-toggle='tooltip', data-placement='right', title='A string value which will be included in the ID Token response from Auth0, used to prevent token replay attacks. It is required for response_type=id_token token.') nonce:
+                                td
+                                    input(type="text" name="nonce" required id="nonce" style="width:400px" value="nonce")
+                              tr
+                                td
+                                    p(class="tooltip" data-toggle='tooltip', data-placement='right', title='using login will always force re-authentication even where there is an existing session. using none will attempt to authenticate silently') prompt:
+                                td
+                                    select(name="prompt" id="prompt" style="width:400px")
+                                        option(value='')
+                                        option(value=none) none
+                                        option(value=login) login
+                              tr
+                                td
+                                    p(class="tooltip", data-toggle='tooltip', data-placement='right', title='using this will pre-populate the username box') login_hint:
+                                td
+                                    input(type="text" name="login_hint" id="login_hint" style="width:400px" value="user@example.org")
+                              tr
+                                td
+                                    p(class="tooltip", data-toggle='tooltip', data-placement='right', title='using this will prompt for authentication if the existing authentication is older than x seconds') max_age (seconds):
+                                td
+                                    input(type="text" name="max_age" id="max_age" style="width:400px" value="")
+                              tr
+                                td
+                                    p(class="tooltip", data-toggle='tooltip', data-placement='right', title='using this will prompt for authentication via a named connection') connection (name):
+                                td
+                                    input(type="text" name="connection" id="connection" style="width:400px" value="consumer-users")
+                              tr
+                                td
+                                    p(class="tooltip",  data-toggle='tooltip', data-placement='right', title='use this to go direct to a certain screen') screen_hint:
+                                td
+                                    select(name="screen_hint" id="screen_hint" style="width:400px")
+                                        option(value='')
+                                        option(value=login) login
+                                        option(value=signup) signup
+                              tr
+                                td
+                                    p(class="tooltip", data-toggle='tooltip', data-placement='right', title='populating this will authenticate within the context of a given Organisation') organization (org_id):
+                                td
+                                    input(type="text" name="organization" id="organization" style="width:400px" value="")
+                              tr
+                                td
+                                    p(class="tooltip", data-toggle='tooltip', data-placement='right', title='override the tenant language settings') ui_locales:
+                                td
+                                    input(type="text" name="ui_locales" id="ui_locales" style="width:400px" value="en de")
+                              tr
+                                td
+                                    p(class="tooltip", data-toggle='tooltip', data-placement='right', title='additional custom params must be prefaced with ext- and separated with space e.g "ext-test=1234 ext-test2=5678"') custom params:
+                                td
+                                    input(type="text" name="custom_params" id="custom_params" style="width:400px" value="")
+
+                        input(type="submit")
+
+            td(style="vertical-align: top;text-align: left; max-width:60%; padding: 10px;")
+                h1 implicit
+                p You can use OpenID Connect (OIDC) with many different flows to achieve web sign-in for a traditional web app. In one common flow, you obtain an ID token using authorization code flow performed by the app backend. This method is effective and robust, however, it requires your web app to obtain and manage a secret. You can avoid that burden if all you want to do is implement sign-in and you don’t need to obtain access tokens for invoking APIs.
+
+                p Implicit Flow with Form Post flow uses OIDC to implement web sign-in that is very similar to the way SAML and WS-Federation operates. The web app requests and obtains tokens through the front channel, without the need for secrets or extra backend calls. With this method, you don’t need to obtain, maintain, use, and protect a secret in your application.
+                p
+                    a(href="https://auth0.com/docs/get-started/authentication-and-authorization-flow/implicit-flow-with-form-post" target="_blank") Learn more.
+                if(!code & !id_token)
+
+                    p 1) The user clicks Login in the app.
+
+                    p 2) Auth0's SDK redirects the user to the Auth0 Authorization Server (/authorize endpoint) passing along a response_type parameter of id_token that indicates the type of requested credential. It also passes along a response_mode parameter of form_post to ensure security.
+
+                    p 3) Your Auth0 Authorization Server redirects the user to the login and authorization prompt.
+
+                    p 4) The user authenticates using one of the configured login options and may see a consent page listing the permissions Auth0 will give to the app.
+
+                if(id_token)
+                    p 5) Your Auth0 Authorization Server redirects the user back to the app with an ID Token.
+                    p 6) the access_token can be used to call an API to get user data (see <a href="/call_api">Call API</a>).
+
+                img(width="100%", src="https://images.ctfassets.net/cdy7uua7fh8z/6m0uE4E7Hpzbdhyh9dEuYK/e36c910ff47a7540bf27e23c02822624/auth-sequence-implicit-form-post.png")
+
+    table(style='width:100%;table-layout:fixed', border='0')
+          tr
+            td
+
+                div(id="request_details")
+
+                    if(error)
+                        h3(style="margin-left: 0px;padding-left: 0px !important;") + Error details
+                        pre
+                            code(id="error_details" class="prettyprint" style="word-break: break-all; white-space: normal;") error: #{error} <br> error_description: #{error_description} <br> mfa_token: #{JSON.stringify(mfa_token)}
+
+                    if(request)
+                        h3(style="margin-left: 0px;padding-left: 0px !important;") + Request details
+                        pre
+                            code(id="request_url" class="prettyprint" style="word-break: break-all; white-space: normal;") URL: #{request.uri} <br> Method: #{request.method} <br> Body: #{JSON.stringify(request.form)} <br> Headers: #{JSON.stringify(request.headers)}
+
+                    if(response)
+                        h3(style="margin-left: 0px;padding-left: 0px !important;") + Response details
+                        pre
+                            code(id="response_url" class="prettyprint" style="word-break: break-all; white-space: normal;") Body: #{JSON.stringify(response.body)} <br> Status Code : #{response.statusCode} <br> Headers : #{JSON.stringify(response.headers)}
+
+
+    script.
+
+             document.addEventListener('submit', (e) => {
+
+              // Store reference to form to make later code easier to read
+                 const form = e.target;
+
+
+                      var url = 'https://'+document.getElementById('domain').value+'/authorize?response_mode='+document.getElementById('response_mode').value+'&response_type='+document.getElementById('response_type').value+'&client_id='+document.getElementById('client_id').value+'&redirect_uri='+document.getElementById('redirect_uri').value+'&audience='+document.getElementById('audience').value+'&scope='+document.getElementById('scope').value+'&state='+document.getElementById('state').value+'&nonce='+document.getElementById('nonce').value
+                      if (document.getElementById('connection').value !="") {
+                          url = url + '&connection='+document.getElementById('connection').value
+                      }
+                      if (document.getElementById('prompt').value !="") {
+                          url = url + '&prompt='+document.getElementById('prompt').value
+                      }
+                      console.log(url);
+                      if (document.getElementById('organization').value !="") {
+                          url = url + '&organization='+document.getElementById('organization').value
+                      }
+                      if (document.getElementById('max_age').value !="") {
+                          url = url + '&max_age='+document.getElementById('max_age').value
+                      }
+                      console.log(url);
+                      if (document.getElementById('login_hint').value !="") {
+                          url = url + '&login_hint='+document.getElementById('login_hint').value
+                      }
+                      console.log(url);
+                      if (document.getElementById('screen_hint').value !="") {
+                        url = url + '&screen_hint='+document.getElementById('screen_hint').value
+                      }
+                      if (document.getElementById('ui_locales').value !="") {
+                          url = url + '&ui_locales='+document.getElementById('ui_locales').value
+                      }
+                      if (document.getElementById('custom_params').value !="") {
+                        var params = document.getElementById('custom_params').value.split(" ");
+                        for (var i = 0; i < params.length; i++) {
+                            url = url + '&'+params[i];
+                        }
+                      }
+                       window.localStorage.setItem('request_url', url);
+                       location.href = url;
+                 // Prevent the default form submit
+                 e.preventDefault();
+
+             });
+
+            document.addEventListener('DOMContentLoaded', (event) => {
+
+                const urlSearchParams = new URLSearchParams(window.location.search);
+                const params = Object.fromEntries(urlSearchParams.entries());
+
+                if(!(document.getElementById('access_token') && document.getElementById('access_token').innerHTML.toString().length > 1)) {
+                    localStorage.clear();
+                  }else {
+
+                  document.getElementById('request_url').innerHTML = localStorage.getItem('request_url');
+                  }
+
+
+
+            })

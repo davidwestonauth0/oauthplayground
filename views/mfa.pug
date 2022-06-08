@@ -1,0 +1,126 @@
+extends layout
+
+block content
+
+  .content
+    table(style='width:100%;table-layout:fixed', border='0')
+
+          tr
+            td(style="vertical-align: top;text-align: left; max-width:40%; padding: 10px;")
+                p(id="request_url" style="word-break: break-all; white-space: normal;") #{requestUrl}
+                p(id="response_url" style="word-break: break-all; white-space: normal;") #{responseUrl}
+
+                p(id="error" style="display:none; word-break: break-all; white-space: normal;") #{error}
+                p(id="error_description" style="display:none; word-break: break-all; white-space: normal;") #{error_description}
+
+                if id_token
+                    if id_token
+                        table(id="tokens")
+                            tr
+                                td
+                                    a(href="#" alt="copy id_token", id="id_token_button" onclick="copyToClipboard('#id_token')" )
+                                     img(height="40px",src=`/images/icon-id-token.svg`)
+                                td
+                                    pre
+                                        code(id="id_token" class="prettyprint" style="word-break: break-all; white-space: normal;") #{id_token}
+                            tr
+                                td
+                                td
+                                    pre
+                                        code(id="id_token_decoded" class="prettyprint" style="word-break: break-all; white-space: normal;")
+                            tr
+                                td
+                                    a(href="#" alt="copy access_token", id="access_token_button" onclick="copyToClipboard('#access_token')" )
+                                        img(height="40px",src=`/images/icon-access-token.svg`)
+                                td
+                                    pre
+                                        code(id="access_token" class="prettyprint" style="word-break: break-all; white-space: normal;") #{access_token}
+                            tr
+                                td
+                                td
+                                    pre
+                                        code(id="access_token_decoded" class="prettyprint" style="word-break: break-all; white-space: normal;")
+                            tr
+                                td
+                                    a(href="#" alt="copy refresh_token", id="refresh_token_button" onclick="copyToClipboard('#refresh_token')" )
+                                        img(height="40px",src=`/images/icon-refresh-token.svg`)
+                                td
+                                    pre
+                                        code(id="refresh_token" style="word-break: break-all; white-space: normal;") #{refresh_token}
+                else
+                    if error
+                        p error
+                        p(id="error" style="width:1400px; word-break: break-all; white-space: normal;") #{error}
+                        p error_description
+                        p(id="error_description" style="width:1400px; word-break: break-all; white-space: normal;") #{error_description}
+                        p mfa_token
+                        p(id="mfa_token" style="width:1400px; word-break: break-all; white-space: normal;") #{mfa_token}
+
+
+                if !authenticator_id && !id_token
+                    form(action="/mfa" method="POST")
+
+                        p mfa_token:
+                          textarea(name="mfa_token" id="mfa_token" style="height:200px; width:600px" value=access_token) #{mfa_token}
+
+                        input(type="submit")
+
+                if authenticator_id && !oob_code
+                    form(action="/mfa" method="POST")
+
+                        p mfa_token:
+                          textarea(name="mfa_token" id="mfa_token" style="height:200px; width:600px" value=mfa_token) #{mfa_token}
+                        p authenticator_id:
+                          input(type="text" name="authenticator_id" id="authenticator_id" style="width:400px" value=authenticator_id)
+                        p client_id:
+                          input(type="text" name="client_id" id="client_id" style="width:400px" value=process.env.CLIENT_ID)
+                        p client_secret:
+                          input(type="text" name="client_secret" id="client_secret" style="width:400px" value=process.env.CLIENT_SECRET)
+                        p challenge_type:
+                            input(type="text" name="challenge_type" id="challenge_type" style="width:400px" value=challenge_type)
+                        input(type="submit")
+
+                if oob_code
+                    form(action="/mfa" method="POST")
+                        p client_id:
+                          input(type="text" name="client_id" id="client_id" style="width:400px" value=process.env.CLIENT_ID)
+                        p client_secret:
+                          input(type="text" name="client_secret" id="client_secret" style="width:400px" value=process.env.CLIENT_SECRET)
+                        p(data-toggle='tooltip', data-placement='right', title='ff') mfa_token:
+                          input(type="text" name="mfa_token" id="mfa_token" style="width:400px" value=mfa_token)
+                        p(data-toggle='tooltip', data-placement='right', title='ddd') oob_code:
+                          input(type="text" name="oob_code" id="oob_code" style="width:400px" value=oob_code)
+                        p(data-toggle='tooltip', data-placement='right', title='ddd') binding_code:
+                          input(type="text" name="binding_code" id="binding_code" style="width:400px" value="")
+                        p(data-toggle='tooltip', data-placement='right', title='fd') grant_type:
+                            select(name="grant_type" id="grant_type" style="width:400px")
+                              option(value="http://auth0.com/oauth/grant-type/mfa-oob") http://auth0.com/oauth/grant-type/mfa-oob
+
+
+                        input(type="submit")
+
+
+            td(style="vertical-align: top;text-align: left; max-width:60%; padding: 10px;")
+                h1 MFA
+
+    table(style='width:100%;table-layout:fixed', border='0')
+          tr
+            td
+
+                div(id="request_details")
+
+                    if(error)
+                        h3(style="margin-left: 0px;padding-left: 0px !important;") + Error details
+                        pre
+                            code(id="error_details" class="prettyprint" style="word-break: break-all; white-space: normal;") error: #{error} <br> error_description: #{error_description} <br> mfa_token: #{JSON.stringify(mfa_token)}
+
+                    if(request)
+                        h3(style="margin-left: 0px;padding-left: 0px !important;") + Request details
+                        pre
+                            code(id="request_url" class="prettyprint" style="word-break: break-all; white-space: normal;") URL: #{request.uri} <br> Method: #{request.method} <br> Body: #{JSON.stringify(request.json)} <br> Headers: #{JSON.stringify(request.headers)}
+
+                    if(response)
+                        h3(style="margin-left: 0px;padding-left: 0px !important;") + Response details
+                        pre
+                            code(id="response_url" class="prettyprint" style="word-break: break-all; white-space: normal;") Body: #{JSON.stringify(response.body)} <br> Status Code : #{response.statusCode} <br> Headers : #{JSON.stringify(response.headers)}
+

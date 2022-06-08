@@ -1,0 +1,175 @@
+extends layout
+
+block content
+  .content
+    table(style='width:100%;table-layout:fixed', border='0')
+
+          tr
+            td(style="vertical-align: top;text-align: left; max-width:40%; padding: 10px;")
+                if error
+                    h3(style="color: red; margin-left: 0px;padding-left: 0px !important;") Error
+                    pre
+                        code(id="error_details" class="prettyprint" style="word-break: break-all; white-space: normal;") error: #{error} #{response.statusCode} <br> error_description: #{error_description}
+
+                if access_token || id_token
+                    table(id="tokens")
+                        if id_token
+                            -
+                                id_token_decoded = parseJwt(id_token);
+                            tr
+                                td
+                                    a(href="#" alt="copy id_token", id="id_token_button" onclick="copyToClipboard('#id_token')" )
+                                     img(height="40px",src=`/images/icon-id-token.svg`)
+                                td
+                                    pre
+                                        code(id="id_token" class="prettyprint" style="word-break: break-all; white-space: normal;") #{id_token}
+                            tr
+                                td
+                                td
+                                    pre
+                                        code(id="id_token_decoded" class="prettyprint" style="word-break: break-all; white-space: normal;") #{JSON.stringify(id_token_decoded)}
+
+                        if access_token
+                            -
+                                access_token_decoded = parseJwt(access_token);
+                            tr
+                                td
+                                    a(href="#" alt="copy access_token", id="access_token_button" onclick="copyToClipboard('#access_token')" )
+                                        img(height="40px",src=`/images/icon-access-token.svg`)
+                                td
+                                    pre
+                                        code(id="access_token" class="prettyprint" style="word-break: break-all; white-space: normal;") #{access_token}
+                            tr
+                                td
+                                td
+                                    pre
+                                        code(id="access_token_decoded" class="prettyprint" style="word-break: break-all; white-space: normal;") #{JSON.stringify(access_token_decoded)}
+                        if refresh_token
+                            tr
+                                td
+                                    a(href="#" alt="copy refresh_token", id="refresh_token_button" onclick="copyToClipboard('#refresh_token')" )
+                                        img(height="40px",src=`/images/icon-refresh-token.svg`)
+                                td
+                                    pre
+                                        code(id="refresh_token" style="word-break: break-all; white-space: normal;") #{refresh_token}
+
+                else if device_code || error
+                        p(id="device_code" style="width:1400px; word-break: break-all; white-space: normal;") #{device_code}
+                        p(id="user_code" style="width:1400px; word-break: break-all; white-space: normal;") #{user_code}
+                        a(href=verification_uri_complete target="_blank") #{verification_uri_complete}
+                        if qr
+                            img(id="canvas" src=qr)
+                        form(action="/device_code" method="POST")
+                            table(border='0' border-collapse: collapse;)
+                                  tr
+                                    td
+                                        p(class="required tooltip", data-toggle='tooltip', data-placement='right', title='Your applications client ID') client_id:
+                                    td
+                                        input(type="text" required name="client_id" id="client_id" style="width:400px" value=process.env.CLIENT_ID_NATIVE)
+                                  tr
+                                    td
+                                        p(class="required tooltip", data-toggle='tooltip', data-placement='right', title='The device code previously returned from the /oauth/device/code endpoint.') device_code:
+                                    td
+                                        input(type="text" name="device_code" id="device_code" style="width:400px" value=device_code)
+                                        input(type="hidden" name="user_code" id="user_code" style="width:400px" value=user_code)
+                                        input(type="hidden" name="verification_uri_complete" id="verification_uri_complete" style="width:400px" value=verification_uri_complete)
+                                        input(type="hidden" name="verification_uri" id="verification_uri" style="width:400px" value=verification_uri)
+                                  tr
+                                    td
+                                        p(class="required tooltip", data-toggle='tooltip', data-placement='right', title='Denotes the flow you are using. For Device Authorization, use urn:ietf:params:oauth:grant-type:device_code.') grant_type:
+                                    td
+                                        select(name="grant_type" required id="grant_type" style="width:400px")
+                                            option(value="urn:ietf:params:oauth:grant-type:device_code") urn:ietf:params:oauth:grant-type:device_code
+
+                            input(type="submit")
+
+                else
+                    form(action="/device_code" method="POST")
+                        table(border='0' border-collapse: collapse;)
+                              tr
+                                td
+                                    p(class="required tooltip", data-toggle='tooltip', data-placement='right', title='Your applications client ID') client_id:
+                                td
+                                    input(type="text" required name="client_id" id="client_id" style="width:400px" value=process.env.CLIENT_ID_NATIVE)
+                              tr
+                                td
+                                    p(class="required tooltip", data-toggle='tooltip', data-placement='right', title='the identifier of the API who the access_token is for') audience:
+                                td
+                                    input(type="text" required name="audience" id="audience" style="width:400px" value=process.env.AUDIENCE)
+                              tr
+                                td
+                                    p(class="required tooltip", data-toggle='tooltip', data-placement='right', title='include offline_access to request refresh_token. Add read:grants and/or write:grants for testing RBAC') scope:
+                                td
+                                    input(type="text" name="scope" id="scope" style="width:400px" value="openid email profile offline_access")
+
+                        input(type="submit")
+
+            td(style="vertical-align: top;text-align: left; max-width:60%; padding: 10px;")
+                h1 device_code (Device Authorization Flow)
+                p The Device Authorization Flow contains two different paths; one occurs on the device requesting authorization and the other occurs in a browser. The browser flow path, wherein a device code is bound to the session in the browser, occurs in parallel to part of the device flow path.
+                p
+                    a(href="https://auth0.com/docs/get-started/authentication-and-authorization-flow/device-authorization-flow" target="_blank") Learn more.
+                if(!device_code && !id_token)
+
+                    p 1) The user starts the app on the device.
+
+                    p 2) The device app requests authorization from the Auth0 Authorization Server using its Client ID (/oauth/device/code endpoint).
+
+
+                if(device_code)
+
+                    h2 on the input constrained device
+
+                    p 3) The Auth0 Authorization Server responds with a device_code, user_code, verification_uri, verification_uri_complete expires_in (lifetime in seconds for device_code and user_code), and polling interval.
+
+                    p 4) The device app asks the user to activate using their computer or smartphone. The app may accomplish this by:
+
+                    p - asking the user to visit the verification_uri and enter the user_code after displaying these values on-screen
+
+                    p - asking the user to interact with either a QR Code or shortened URL with embedded user code generated from the verification_uri_complete
+
+                    p - directly navigating to the verification page with embedded user code using verification_uri_complete, if running natively on a browser-based device
+
+                    p 5) The device app begins polling your Auth0 Authorization Server for an Access Token (/oauth/token endpoint) using the time period specified by interval and counting from receipt of the last polling request's response. The device app continues polling until either the user completes the browser flow path or the user code expires. (For demonstration purposes we are not polling but you can test this manually by clicking submit)
+
+                    p Click the verification_uri link to open the authentication flow in another tab.
+
+                    h2 on the authentication device (e.g. browser)
+
+                    p 1) The user visits the verification_uri on their computer, enters the user_code and confirms that the device that is being activated is displaying the user_code. If the user visits the verification_uri_complete by any other mechanism (such as by scanning a QR code), only the device confirmation will be needed.
+
+                    p 2) Your Auth0 Authorization Server redirects the user to the login and consent prompt, if needed.
+
+                    p 3) The user authenticates using one of the configured login options and may see a consent page asking to authorize the device app.
+
+                    p 4) Your device app is authorized to access the API so you can return to the other tab.
+
+                if(id_token)
+                    p 7) When the user successfully completes the browser flow path, your Auth0 Authorization Server responds with an Access Token (and optionally, a Refresh Token). The device app should now forget its device_code because it will expire.
+
+                    p 8) Your device app can use the Access Token to call an API to access information about the user. (see <a href="/call_api">Call API</a>)
+                    p Once the access_token is expired the refresh_token can be used to get a new one (see <a href="/refresh_token">refresh_token</a>).
+                    p To force the user to reauthorize a device, you must revoke the Refresh Token assigned to the device. To learn how, read Unlink Devices from Users. Note that the device will not be forced to reauthorize until the current Access Token expires and the application tries to use the revoked Refresh Token.
+
+                img(width="100%", src="https://images.ctfassets.net/cdy7uua7fh8z/1A6jpG3W1H6SC9ZK92NyKd/40af53209f90a7c392f621f329fb4424/auth-sequence-device-auth.png")
+
+    table(style='width:100%;table-layout:fixed', border='0')
+          tr
+            td
+
+                div(id="request_details")
+
+                    if(error)
+                        h3(style="margin-left: 0px;padding-left: 0px !important;") + Error details
+                        pre
+                            code(id="error_details" class="prettyprint" style="word-break: break-all; white-space: normal;") error: #{error} <br> error_description: #{error_description} <br> mfa_token: #{JSON.stringify(mfa_token)}
+
+                    if(request)
+                        h3(style="margin-left: 0px;padding-left: 0px !important;") + Request details
+                        pre
+                            code(id="request_url" class="prettyprint" style="word-break: break-all; white-space: normal;") URL: #{request.uri} <br> Method: #{request.method} <br> Body: #{JSON.stringify(request.form)} <br> Headers: #{JSON.stringify(request.headers)}
+
+                    if(response)
+                        h3(style="margin-left: 0px;padding-left: 0px !important;") + Response details
+                        pre
+                            code(id="response_url" class="prettyprint" style="word-break: break-all; white-space: normal;") Body: #{JSON.stringify(response.body)} <br> Status Code : #{response.statusCode} <br> Headers : #{JSON.stringify(response.headers)}

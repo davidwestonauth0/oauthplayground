@@ -2,24 +2,120 @@ extends layout
 
 block content
   .content
-    h1 Home Page
-    p
-      | Hello,
-      |
-      if user
-        a(href='/user')=user.name
-      else
-        | Anonymous
-      |.
-    p So far, this app has been used to manage:
-      ul
-        li
-          strong=count
-          |
-          | expenses
-        li
-          strong=total
-          |
-          | dollars
+    h1 Oauth Flow Playground
 
-
+    br
+    table(style='width:100%;table-layout:fixed', border='1')
+        tr
+            th Flow
+            th Auth0 Session
+            th Native Apps
+            th SPA
+            th WebApp
+            th M2M
+            th Notes
+        tr
+            td
+                a(href='/authorization_code') authorization_code
+            td
+                p Y
+            td
+                p N
+            td
+                p N
+            td
+                p Y
+            td
+                p N
+            td
+                p Not suitable for public clients that expose client_secret. /token call must be made from back-end server.
+        tr
+            td
+                a(href='/authorization_code_pkce') authorization_code_pkce
+            td
+                p Y
+            td
+                p Y
+            td
+                p Y
+            td
+                p N
+            td
+                p N
+            td
+                p code_challenge/code_verifier secure method of authorization_code in public clients. refresh_token rotation must be enabled.
+        tr
+            td
+                a(href='/implicit') implicit
+            td
+                p Y
+            td
+                p N
+            td
+                p N
+            td
+                p Y
+            td
+                p N
+            td
+                p Token exchange through front channel without need for secret. Should just be used for requesting id_token and not access_token. form_post strongly recommended over returning tokens in the URL.
+        tr
+            td
+                a(href='/password') password
+            td
+                p N
+            td
+                p N
+            td
+                p N
+            td
+                p N
+            td
+                p N
+            td
+                p Used for embedded login.
+        tr
+            td
+                a(href='/passwordless') passwordless
+            td
+                p
+            td
+                p
+            td
+                p
+            td
+                p
+            td
+                p
+            td
+                p TBC
+        tr
+            td
+                a(href='/device_code') device_code
+            td
+                p N
+            td
+                p N
+            td
+                p N
+            td
+                p N
+            td
+                p N
+            td
+                p Used for input constrained devices where the authentication is delegated to another device.
+        tr
+            td
+                a(href='/client_credentials') client_credentials
+            td
+                p N
+            td
+                p N
+            td
+                p N
+            td
+                p Y*
+            td
+                p Y
+            td
+                p WebApps can use client_credentials in the back-end

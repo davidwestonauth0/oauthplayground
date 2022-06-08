@@ -1,0 +1,47 @@
+extends layout
+
+block content
+
+  .content
+    table(style='width:100%;table-layout:fixed', border='0')
+
+          tr
+            td(style="vertical-align: top;text-align: left; max-width:40%; padding: 10px;")
+
+                form(action="/revoke" method="POST")
+
+                    p client_id:
+                      select(name="client_id" id="client_id" style="width:400px")
+                        option(value=process.env.CLIENT_ID) #{process.env.CLIENT_ID}
+                        option(value=process.env.CLIENT_ID_SPA) #{process.env.CLIENT_ID_SPA}
+                        option(value=process.env.CLIENT_ID_NATIVE) #{process.env.CLIENT_ID_NATIVE}
+                    p client_secret:
+                      input(type="text" name="client_secret" id="client_secret" style="width:400px" value=process.env.CLIENT_SECRET)
+                    p token:
+                      input(type="text" name="token" id="token" style="width:400px" value=refresh_token)
+
+                    input(type="submit")
+
+            td(style="vertical-align: top;text-align: left; max-width:60%; padding: 10px;")
+                h1 revoke refresh_token
+
+    table(style='width:100%;table-layout:fixed', border='0')
+          tr
+            td
+
+                div(id="request_details")
+
+                    if(error)
+                        h3(style="margin-left: 0px;padding-left: 0px !important;") + Error details
+                        pre
+                            code(id="error_details" class="prettyprint" style="word-break: break-all; white-space: normal;") error: #{error} <br> error_description: #{error_description} <br> mfa_token: #{JSON.stringify(mfa_token)}
+
+                    if(request)
+                        h3(style="margin-left: 0px;padding-left: 0px !important;") + Request details
+                        pre
+                            code(id="request_url" class="prettyprint" style="word-break: break-all; white-space: normal;") URL: #{request.uri} <br> Method: #{request.method} <br> Body: #{JSON.stringify(request.form)} <br> Headers: #{JSON.stringify(request.headers)}
+
+                    if(response)
+                        h3(style="margin-left: 0px;padding-left: 0px !important;") + Response details
+                        pre
+                            code(id="response_url" class="prettyprint" style="word-break: break-all; white-space: normal;") Body: #{JSON.stringify(response.body)} <br> Status Code : #{response.statusCode} <br> Headers : #{JSON.stringify(response.headers)}

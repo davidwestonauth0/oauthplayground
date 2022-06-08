@@ -1,0 +1,118 @@
+extends layout
+
+block content
+  .content
+
+    table(style='width:100%;table-layout:fixed', border='0')
+
+          tr
+            td(style="vertical-align: top;text-align: left; max-width:40%; padding: 10px;")
+
+                if error
+                    h3(style="color: red; margin-left: 0px;padding-left: 0px !important;") Error
+                    pre
+                        code(id="error_details" class="prettyprint" style="word-break: break-all; white-space: normal;") error: #{error} #{response.statusCode} <br> error_description: #{error_description}
+
+                if access_token || id_token
+                    table(id="tokens")
+                        if id_token
+                            -
+                                id_token_decoded = parseJwt(id_token);
+                            tr
+                                td
+                                    a(href="#" alt="copy id_token", id="id_token_button" onclick="copyToClipboard('#id_token')" )
+                                     img(height="40px",src=`/images/icon-id-token.svg`)
+                                td
+                                    pre
+                                        code(id="id_token" class="prettyprint" style="word-break: break-all; white-space: normal;") #{id_token}
+                            tr
+                                td
+                                td
+                                    pre
+                                        code(id="id_token_decoded" class="prettyprint" style="word-break: break-all; white-space: normal;") #{JSON.stringify(id_token_decoded)}
+
+                        if access_token
+                            -
+                                access_token_decoded = parseJwt(access_token);
+                            tr
+                                td
+                                    a(href="#" alt="copy access_token", id="access_token_button" onclick="copyToClipboard('#access_token')" )
+                                        img(height="40px",src=`/images/icon-access-token.svg`)
+                                td
+                                    pre
+                                        code(id="access_token" class="prettyprint" style="word-break: break-all; white-space: normal;") #{access_token}
+                            tr
+                                td
+                                td
+                                    pre
+                                        code(id="access_token_decoded" class="prettyprint" style="word-break: break-all; white-space: normal;") #{JSON.stringify(access_token_decoded)}
+                        if refresh_token
+                            tr
+                                td
+                                    a(href="#" alt="copy refresh_token", id="refresh_token_button" onclick="copyToClipboard('#refresh_token')" )
+                                        img(height="40px",src=`/images/icon-refresh-token.svg`)
+                                td
+                                    pre
+                                        code(id="refresh_token" style="word-break: break-all; white-space: normal;") #{refresh_token}
+                else
+
+                    form(action="/refresh_token" method="POST")
+                        table(border='0' border-collapse: collapse;)
+                              tr
+                                td
+                                    p(class="required tooltip", data-toggle='tooltip', data-placement='right', title='Your applications client ID') client_id:
+                                td
+                                  select(name="client_id" id="client_id" style="width:400px")
+                                    option(value=process.env.CLIENT_ID) #{process.env.CLIENT_ID}
+                                    option(value=process.env.CLIENT_ID_SPA) #{process.env.CLIENT_ID_SPA}
+                                    option(value=process.env.CLIENT_ID_NATIVE) #{process.env.CLIENT_ID_NATIVE}
+                              tr
+                                td
+                                    p(class="required tooltip", data-toggle='tooltip', data-placement='right', title='Your applications Client Secret.') client_secret:
+                                td
+                                    input(type="text" required name="client_secret" id="client_secret" style="width:400px" value=process.env.CLIENT_SECRET)
+                              tr
+                                td
+                                    p(class="required tooltip", data-toggle='tooltip', data-placement='right', title='copy from another successful grant') refresh_token:
+                                td
+                                    input(type="text" required name="refresh_token" id="refresh_token" style="width:400px" value=refresh_token)
+                              tr
+                                td
+                                    p(class="required tooltip", data-toggle='tooltip', data-placement='right', title='include offline_access to request refresh_token. Add read:grants and/or write:grants for testing RBAC') scope:
+                                td
+                                    input(type="text" required name="scope" id="scope" style="width:400px" value="openid profile offline_access")
+                              tr
+                                td
+                                    p(class="required tooltip", data-toggle='tooltip', data-placement='right', title='Denotes the flow you are using. To refresh a token, use refresh_token.') grant_type:
+                                td
+                                    select(name="grant_type" required id="grant_type" style="width:400px")
+                                      option(value="refresh_token") refresh_token
+
+                        input(type="submit")
+
+            td(style="vertical-align: top;text-align: left; max-width:60%; padding: 10px;")
+                h1 refresh_token
+                p
+                    a(href="https://auth0.com/docs/secure/tokens/refresh-tokens/use-refresh-tokens" target="_blank") Learn more.
+
+    table(style='width:100%;table-layout:fixed', border='0')
+          tr
+            td
+
+                div(id="request_details")
+
+                    if(error)
+                        h3(style="margin-left: 0px;padding-left: 0px !important;") + Error details
+                        pre
+                            code(id="error_details" class="prettyprint" style="word-break: break-all; white-space: normal;") error: #{error} <br> error_description: #{error_description}
+
+                    if(request)
+                        h3(style="margin-left: 0px;padding-left: 0px !important;") + Request details
+                        pre
+                            code(id="request_url" class="prettyprint" style="word-break: break-all; white-space: normal;") URL: #{request.uri} <br> Method: #{request.method} <br> Body: #{JSON.stringify(request.form)} <br> Headers: #{JSON.stringify(request.headers)}
+
+                    if(response)
+                        h3(style="margin-left: 0px;padding-left: 0px !important;") + Response details
+                        pre
+                            code(id="response_url" class="prettyprint" style="word-break: break-all; white-space: normal;") Body: #{JSON.stringify(response.body)} <br> Status Code : #{response.statusCode} <br> Headers : #{JSON.stringify(response.headers)}
+

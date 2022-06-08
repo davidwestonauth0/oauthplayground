@@ -1,0 +1,436 @@
+extends layout
+
+block content
+
+  .content
+
+    table(style='width:100%;table-layout:fixed', border='0')
+
+          tr
+            td(style="vertical-align: top;text-align: left; max-width:40%; padding: 10px;")
+
+                if error
+                    h3(style="color: red; margin-left: 0px;padding-left: 0px !important;") Error
+                    pre
+                        code(id="error_details" class="prettyprint" style="word-break: break-all; white-space: normal;") error: #{error} #{response.statusCode} <br> error_description: #{error_description}
+
+                if access_token || id_token
+                    table(id="tokens")
+                        if id_token
+                            -
+                                id_token_decoded = parseJwt(id_token);
+                            tr
+                                td
+                                    a(href="#" alt="copy id_token", id="id_token_button" onclick="copyToClipboard('#id_token')" )
+                                     img(height="40px",src=`/images/icon-id-token.svg`)
+                                td
+                                    pre
+                                        code(id="id_token" class="prettyprint" style="word-break: break-all; white-space: normal;") #{id_token}
+                            tr
+                                td
+                                td
+                                    pre
+                                        code(id="id_token_decoded" class="prettyprint" style="word-break: break-all; white-space: normal;") #{JSON.stringify(id_token_decoded)}
+
+                        if access_token
+                            -
+                                access_token_decoded = parseJwt(access_token);
+                            tr
+                                td
+                                    a(href="#" alt="copy access_token", id="access_token_button" onclick="copyToClipboard('#access_token')" )
+                                        img(height="40px",src=`/images/icon-access-token.svg`)
+                                td
+                                    pre
+                                        code(id="access_token" class="prettyprint" style="word-break: break-all; white-space: normal;") #{access_token}
+                            tr
+                                td
+                                td
+                                    pre
+                                        code(id="access_token_decoded" class="prettyprint" style="word-break: break-all; white-space: normal;") #{JSON.stringify(access_token_decoded)}
+                        if refresh_token
+                            tr
+                                td
+                                    a(href="#" alt="copy refresh_token", id="refresh_token_button" onclick="copyToClipboard('#refresh_token')" )
+                                        img(height="40px",src=`/images/icon-refresh-token.svg`)
+                                td
+                                    pre
+                                        code(id="refresh_token" style="word-break: break-all; white-space: normal;") #{refresh_token}
+
+
+                else if code
+
+                    form(name="token" id="token")
+                        table(border='0' border-collapse: collapse;)
+                              tr
+                                td
+                                    p(class="required tooltip", data-toggle='tooltip', data-placement='right', title='Your applications ID') client_id:
+                                td
+                                    input(type="text" required name="client_id" id="client_id" style="width:400px" value=process.env.CLIENT_ID_SPA)
+                                    input(type="hidden" name="domain" id="domain" style="width:400px" value=process.env.DOMAIN)
+                              tr
+                                td
+                                    p(class="required tooltip", data-toggle='tooltip', data-placement='right', title='Cryptographically random key that was used to generate the code_challenge passed to /authorize.') code_verifier:
+                                td
+                                    input(type="text" required name="code_verifier" id="code_verifier" style="width:400px" value=code_verifier)
+                              tr
+                                td
+                                    p(class="required tooltip" data-toggle='tooltip', data-placement='right', title='The URL to which Auth0 will redirect the browser after authorization has been granted by the user. This must match the original request') redirect_uri:
+                                td
+                                    input(type="text" required name="redirect_uri" id="redirect_uri" style="width:400px" value="http://localhost:3001/authorization_code_pkce")
+                              tr
+                                td
+                                    p(class="required tooltip" data-toggle='tooltip', data-placement='right', title='Denotes the flow you are using. For Authorization Code (PKCE) use authorization_code.') grant_type:
+                                td
+                                    select(name="grant_type" required id="grant_type" style="width:400px")
+                                      option(value=authorization_code) authorization_code
+                              tr
+                                td
+                                    p(class="required tooltip" data-toggle='tooltip', data-placement='right', title='The Authorization Code received from the initial /authorize call.') code:
+                                td
+                                    input(type="text" required name="code" id="code" style="width:400px" value=code)
+                        input(type="submit")
+
+                else
+                    form(name="authorize" id="authorize")
+                        table(border='0' border-collapse: collapse;)
+                              tr
+                                td
+                                    p(class="required tooltip", data-toggle='tooltip', data-placement='right', title='Your applications ID') client_id:
+                                td
+                                    input(type="text" name="client_id" id="client_id" required style="width:400px" value=process.env.CLIENT_ID_SPA)
+                                    input(type="hidden" name="domain" id="domain" style="width:400px" value=process.env.DOMAIN)
+                              tr
+                                td
+                                    p(class="required tooltip" data-toggle='tooltip', data-placement='right', title='Method used to generate the challenge. The PKCE spec defines two methods, S256 and plain, however, Auth0 supports only S256 since the latter is discouraged.') code_challenge_method:
+                                td
+                                    input(type="text" required name="code_challenge_method" id="code_challenge_method" style="width:400px" value="S256")
+                              tr
+                                td
+                                    p(class="required tooltip" data-toggle='tooltip', data-placement='right', title='a code generated from the code_verifier') code_challenge:
+                                td
+                                    input(type="text" required name="code_challenge" id="code_challenge" style="width:400px" value=code_challenge)
+                              tr
+                                td
+                                    p(class="required tooltip" data-toggle='tooltip', data-placement='right', title='The URL to which Auth0 will redirect the browser after authorization has been granted by the user.') redirect_uri:
+                                td
+                                    input(type="text" required name="redirect_uri" id="redirect_uri" style="width:400px" value="http://localhost:3001/authorization_code_pkce")
+                              tr
+                                td
+                                    p(class="tooltip" data-toggle='tooltip', data-placement='right', title='The unique identifier of the target API you want to access.') audience:
+                                td
+                                    input(type="text" name="audience" id="audience" style="width:400px" value=process.env.AUDIENCE)
+                              tr
+                                td
+                                    p(class="tooltip" data-toggle='tooltip', data-placement='right', title='include offline_access to request refresh_token. Add read:test and/or write:test for testing RBAC. Add stepup:test for testing contextual MFA') scope:
+                                td
+                                    input(type="text" name="scope" id="scope" style="width:400px" value="openid profile email offline_access")
+                              tr
+                                td
+                                    p(class="required tooltip" data-toggle='tooltip', data-placement='right', title='how the authorization_code should be returned; in the query string or as a form POST') response_mode:
+                                td
+                                    select(name="response_mode" required id="response_mode" style="width:400px")
+                                      option(value=query) query
+                                      option(value=form_post) form_post
+                              tr
+                                td
+                                    p(class="required tooltip" data-toggle='tooltip', data-placement='right', title='Indicates to Auth0 which OAuth 2.0 flow you want to perform. Use code for Authorization Code Grant Flow.') response_type:
+                                td
+                                  select(name="response_type" required id="response_type" style="width:400px")
+                                    option(value=code) code
+                              tr
+                                td
+                                    p(class="required tooltip" data-toggle='tooltip', data-placement='right', title='An opaque value the clients adds to the initial request that Auth0 includes when redirecting the back to the client. This value must be used by the client to prevent CSRF attacks.') state:
+                                td
+                                    input(type="text" name="state" required id="state" style="width:400px" value="somestatevalue")
+                              tr
+                                td
+                                    p(class="required tooltip" data-toggle='tooltip', data-placement='right', title='A string value which will be included in the ID Token response from Auth0, used to prevent token replay attacks. It is required for response_type=id_token token.') nonce:
+                                td
+                                    input(type="text" name="nonce" required id="nonce" style="width:400px" value="nonce")
+                              tr
+                                td
+                                    p(class="tooltip" data-toggle='tooltip', data-placement='right', title='using login will always force re-authentication even where there is an existing session. using none will attempt to authenticate silently') prompt:
+                                td
+                                    select(name="prompt" id="prompt" style="width:400px")
+                                        option(value='')
+                                        option(value=none) none
+                                        option(value=login) login
+                              tr
+                                td
+                                    p(class="tooltip", data-toggle='tooltip', data-placement='right', title='using this will pre-populate the username box') login_hint:
+                                td
+                                    input(type="text" name="login_hint" id="login_hint" style="width:400px" value="user@example.org")
+                              tr
+                                td
+                                    p(class="tooltip", data-toggle='tooltip', data-placement='right', title='using this will prompt for authentication if the existing authentication is older than x seconds') max_age (seconds):
+                                td
+                                    input(type="text" name="max_age" id="max_age" style="width:400px" value="")
+                              tr
+                                td
+                                    p(class="tooltip", data-toggle='tooltip', data-placement='right', title='using this will prompt for authentication via a named connection') connection (name):
+                                td
+                                    input(type="text" name="connection" id="connection" style="width:400px" value="consumer-users")
+                              tr
+                                td
+                                    p(class="tooltip",  data-toggle='tooltip', data-placement='right', title='use this to go direct to a certain screen') screen_hint:
+                                td
+                                    select(name="screen_hint" id="screen_hint" style="width:400px")
+                                        option(value='')
+                                        option(value=login) login
+                                        option(value=signup) signup
+                              tr
+                                td
+                                    p(class="tooltip", data-toggle='tooltip', data-placement='right', title='populating this will authenticate within the context of a given Organisation') organization (org_id):
+                                td
+                                    input(type="text" name="organization" id="organization" style="width:400px" value="")
+                              tr
+                                td
+                                    p(class="tooltip", data-toggle='tooltip', data-placement='right', title='override the tenant language settings') ui_locales:
+                                td
+                                    input(type="text" name="ui_locales" id="ui_locales" style="width:400px" value="en de")
+                              tr
+                                td
+                                    p(class="tooltip", data-toggle='tooltip', data-placement='right', title='additional custom params must be prefaced with ext- and separated with space e.g "ext-test=1234 ext-test2=5678"') custom params:
+                                td
+                                    input(type="text" name="custom_params" id="custom_params" style="width:400px" value="")
+
+                        input(type="submit")
+            td(style="vertical-align: top;text-align: left; max-width:60%; padding: 10px;")
+                h1 authorization_code (with PKCE)
+                p
+                    a(href="https://auth0.com/docs/get-started/authentication-and-authorization-flow/authorization-code-flow-with-proof-key-for-code-exchange-pkce" target="_blank") Learn more.
+
+
+                if(!code && !id_token)
+                    p 1) The user clicks Login within the application.
+
+                    p 2) Auth0's SDK creates a cryptographically-random code_verifier and from this generates a code_challenge.
+
+                    p 3)  Auth0's SDK redirects the user to the Auth0 Authorization Server (/authorize endpoint) along with the code_challenge.
+
+                    p 4) Your Auth0 Authorization Server redirects the user to the login and authorization prompt.
+
+                    p 5) The user authenticates using one of the configured login options and may see a consent page listing the permissions Auth0 will give to the application.
+
+
+                if(code)
+                    p 6) Your Auth0 Authorization Server stores the code_challenge and redirects the user back to the application with an authorization code, which is good for one use.
+
+                    p 7) Auth0's SDK sends this code and the code_verifier (created in step 2) to the Auth0 Authorization Server (/oauth/token endpoint).
+
+                    p 8) Your Auth0 Authorization Server verifies the code_challenge and code_verifier.
+                if(id_token)
+
+                    p 9) Your Auth0 Authorization Server responds with an ID Token and Access Token (and optionally, a Refresh Token).
+
+                    p 10) the access_token can be used to call an API to get user data (see <a href="/call_api">Call API</a>). Once this is expired the refresh_token can be used to get a new one (see <a href="/refresh_token">refresh_token</a>) Note an SPA must be configured with Refresh Token Rotation.
+                img(width="100%", src="https://images.ctfassets.net/cdy7uua7fh8z/3pstjSYx3YNSiJQnwKZvm5/33c941faf2e0c434a9ab1f0f3a06e13a/auth-sequence-auth-code-pkce.png")
+
+                p(style="word-break: break-all; white-space: normal;") When public clients (e.g., native and single-page applications) request Access Tokens, some additional security concerns are posed that are not mitigated by the Authorization Code Flow alone. This is because:
+
+                p Native apps
+
+                p - Cannot securely store a Client Secret. Decompiling the app will reveal the Client Secret, which is bound to the app and is the same for all users and devices.
+
+                p - May make use of a custom URL scheme to capture redirects (e.g., MyApp://) potentially allowing malicious applications to receive an Authorization Code from your Authorization Server.
+
+                p Single-page apps
+
+                p - Cannot securely store a Client Secret because their entire source is available to the browser.
+
+                p Given these situations, OAuth 2.0 provides a version of the Authorization Code Flow which makes use of a Proof Key for Code Exchange (PKCE) (defined in OAuth 2.0 RFC 7636).
+
+                p The PKCE-enhanced Authorization Code Flow introduces a secret created by the calling application that can be verified by the authorization server; this secret is called the Code Verifier. Additionally, the calling app creates a transform value of the Code Verifier called the Code Challenge and sends this value over HTTPS to retrieve an Authorization Code. This way, a malicious attacker can only intercept the Authorization Code, and they cannot exchange it for a token without the Code Verifier.
+
+    table(style='width:100%;table-layout:fixed', border='0')
+          tr
+            td
+
+                div(id="request_details")
+
+                    if(error)
+                        h3(style="margin-left: 0px;padding-left: 0px !important;") + Error details
+                        pre
+                            code(id="error_details" class="prettyprint" style="word-break: break-all; white-space: normal;") error: #{error} <br> error_description: #{error_description}
+
+                    if(request)
+                        h3(style="margin-left: 0px;padding-left: 0px !important;") + Request details
+                        pre
+                            code(id="request_url" class="prettyprint" style="word-break: break-all; white-space: normal;") URL: #{request.uri} <br> Method: #{request.method} <br> Body: #{request.body} <br> Headers: #{JSON.stringify(request.requestHeaders)}
+
+                    if(response)
+                        h3(style="margin-left: 0px;padding-left: 0px !important;") + Response details
+                        pre
+                            if(response.body)
+                                code(id="response_url" class="prettyprint" style="word-break: break-all; white-space: normal;") Body: #{JSON.stringify(response.body)} <br> Status Code : #{response.status} #{response.statusCode} <br> Headers : #{response.responseHeaders}
+                            else
+                                code(id="response_url" class="prettyprint" style="word-break: break-all; white-space: normal;") #{response}
+
+
+    script.
+
+            function dec2hex(dec) {
+              return ("0" + dec.toString(16)).substr(-2);
+            }
+
+            function generateCodeVerifier() {
+              var array = new Uint32Array(56 / 2);
+              window.crypto.getRandomValues(array);
+              return Array.from(array, dec2hex).join("");
+            }
+
+            // GENERATING CODE CHALLENGE FROM VERIFIER
+            function sha256(plain) {
+              // returns promise ArrayBuffer
+              const encoder = new TextEncoder();
+              const data = encoder.encode(plain);
+              return window.crypto.subtle.digest("SHA-256", data);
+            }
+
+            function base64urlencode(a) {
+              var str = "";
+              var bytes = new Uint8Array(a);
+              var len = bytes.byteLength;
+              for (var i = 0; i < len; i++) {
+                str += String.fromCharCode(bytes[i]);
+              }
+              return btoa(str)
+                .replace(/\+/g, "-")
+                .replace(/\//g, "_")
+                .replace(/=+$/, "");
+            }
+
+            async function generateCodeChallengeFromVerifier(v) {
+              var hashed = await sha256(v);
+              var base64encoded = base64urlencode(hashed);
+              return base64encoded;
+            }
+
+            async function getCodeChallenge() {
+
+              let codeVerifier = window.localStorage.getItem('code_verifier');
+              try {
+                let code_challenge = await generateCodeChallengeFromVerifier(
+                  codeVerifier
+                );
+                if(document.getElementById("code_challenge")) {
+                    document.getElementById("code_challenge").value = code_challenge;
+                    window.localStorage.setItem('code_challenge', code_challenge);
+                }
+              } catch (e) {
+                if(document.getElementById("code_challenge")) {
+                    document.getElementById("code_challenge").value = JSON.stringify(e);
+                }
+              }
+            }
+
+             document.addEventListener('submit', (e) => {
+
+              // Store reference to form to make later code easier to read
+                 const form = e.target;
+                 console.log(e);
+                 console.log(form);
+
+                 if(document.getElementById('code')) {
+                  var xhr = new XMLHttpRequest();
+                  var params = 'grant_type='+document.getElementById('grant_type').value+'&client_id='+document.getElementById('client_id').value+'&code_verifier='+document.getElementById('code_verifier').value+'&code='+document.getElementById('code').value+'&redirect_uri='+document.getElementById('redirect_uri').value;
+                  var uri = 'https://'+document.getElementById('domain').value+'/oauth/token';
+                  xhr.open('POST', uri, true);
+
+                  //document.getElementById('request_url').innerHTML = window.localStorage.getItem('request_url');
+
+                  //Send the proper header information along with the request
+                  xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+                  xhr.onreadystatechange = function() {//Call a function when the state changes.
+                      if(xhr.readyState == 4 && xhr.status == 200) {
+                          var body = JSON.parse(xhr.responseText);
+                          let response = {body:body, status:xhr.status, responseHeaders: xhr.getAllResponseHeaders()};
+
+                          let request = {body:params, method: 'POST', uri: uri, requestHeaders: JSON.parse('{"Content-type": "application/x-www-form-urlencoded"}')};
+                          post(window.location.pathname, {response: JSON.stringify(response), request: JSON.stringify(request), id_token: body.id_token, access_token: body.access_token, refresh_token: body.refresh_token});
+
+                      } else if(xhr.readyState == 4 && xhr.status != 200) {
+                        var body = JSON.parse(xhr.responseText);
+                          let response = {body:body, status:xhr.status, responseHeaders: xhr.getAllResponseHeaders()};
+                          let request = {body:params, uri: uri, method: 'POST', requestHeaders: JSON.parse('{"Content-type": "application/x-www-form-urlencoded"}')};
+                        post(window.location.pathname, {response: JSON.stringify(response), request: JSON.stringify(request), error: body.error, error_description: body.error_description});
+                      }
+                  }
+                  xhr.send(params);
+
+                  } else {
+
+                      var url = 'https://'+document.getElementById('domain').value+'/authorize?response_mode='+document.getElementById('response_mode').value+'&response_type='+document.getElementById('response_type').value+'&code_challenge='+document.getElementById('code_challenge').value+'&code_challenge_method='+document.getElementById('code_challenge_method').value+'&client_id='+document.getElementById('client_id').value+'&redirect_uri='+document.getElementById('redirect_uri').value+'&audience='+document.getElementById('audience').value+'&scope='+document.getElementById('scope').value+'&state='+document.getElementById('state').value+'&nonce='+document.getElementById('nonce').value
+                      if (document.getElementById('connection').value !="") {
+                          url = url + '&connection='+document.getElementById('connection').value
+                      }
+                      if (document.getElementById('prompt').value !="") {
+                          url = url + '&prompt='+document.getElementById('prompt').value
+                      }
+                      if (document.getElementById('organization').value !="") {
+                          url = url + '&organization='+document.getElementById('organization').value
+                      }
+                      if (document.getElementById('max_age').value !="") {
+                          url = url + '&max_age='+document.getElementById('max_age').value
+                      }
+                      if (document.getElementById('login_hint').value !="") {
+                          url = url + '&login_hint='+document.getElementById('login_hint').value
+                      }
+                      if (document.getElementById('screen_hint').value !="") {
+                        url = url + '&screen_hint='+document.getElementById('screen_hint').value
+                      }
+                      if (document.getElementById('ui_locales').value !="") {
+                          url = url + '&ui_locales='+document.getElementById('ui_locales').value
+                      }
+                      if (document.getElementById('custom_params').value !="") {
+                        var params = document.getElementById('custom_params').value.split(" ");
+                        for (var i = 0; i < params.length; i++) {
+                            url = url + '&'+params[i];
+                        }
+                      }
+
+                       window.localStorage.setItem('request_url', url);
+                       location.href = url;
+
+                  }
+
+                 // Prevent the default form submit
+                 e.preventDefault();
+             });
+
+            document.addEventListener('DOMContentLoaded', (event) => {
+
+                const urlSearchParams = new URLSearchParams(window.location.search);
+                const params = Object.fromEntries(urlSearchParams.entries());
+
+                if(!document.getElementById("code") && (!('error' in params))) {
+                    localStorage.clear();
+                } else if (!document.getElementById("id_token")) {
+                  if ('code' in params) {
+                    if(document.getElementById('request_url')) {
+                        document.getElementById('request_url').innerHTML = window.localStorage.getItem('request_url');
+                    }
+                  }
+                }
+                  //the event occurred
+                  if (!window.localStorage.getItem('code_verifier') || !window.localStorage.getItem('code_challenge')) {
+                      const code_verifier = generateCodeVerifier();
+                      window.localStorage.setItem('code_verifier', code_verifier);
+                      getCodeChallenge();
+                  } else {
+
+                      if (document.getElementById("code_verifier")) {
+                         document.getElementById("code_verifier").value = window.localStorage.getItem('code_verifier');
+
+                      }
+                        if (document.getElementById("code_challenge")) {
+                           document.getElementById("code_challenge").value = window.localStorage.getItem('code_challenge');
+                        }
+                  }
+
+                  if(document.getElementById('code')) {
+                      if(document.getElementById('request_url') && !document.getElementById('request_url').innerHTML.includes("http")) {
+                          document.getElementById('request_url').innerHTML = window.localStorage.getItem('request_url');
+                      }
+                  }
+            })

@@ -4,5 +4,6 @@ block content
   .content
     h1= message
     h2= error.status
+    h3= error
     pre #{error.stack && error.stack.replace(/\/.*\/regular-web-app-express\/v\d.\d/g,'')}
 
