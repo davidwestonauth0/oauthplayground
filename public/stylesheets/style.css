@@ -15,6 +15,7 @@ body {
   justify-content: center;
   align-items: stretch;
   min-height: 98vh;
+  padding: 32px;
 }
 
 h1 {
@@ -79,7 +80,7 @@ li.logo img {
 
 .content {
   background: white;
-  width: 80%;
+  width: 95%;
   padding: 60px;
   padding-top: 10px;
   border-radius: 3px;
@@ -87,6 +88,56 @@ li.logo img {
     0px 3px 8px rgba(0, 0, 0, 0.0379303);
   margin-top: 70px;
   margin-bottom: 45px;
+}
+
+
+.required:after {
+content:" *";
+color: red;
+}
+
+.tooltip:hover {
+background-color: #3885ff;
+cursor: pointer;
+}
+
+.tooltip-main {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  font-weight: 700;
+  background: #f3f3f3;
+  border: 1px solid #737373;
+  color: #737373;
+  margin: 4px 121px 0 5px;
+  float: right;
+  text-align: left !important;
+}
+
+.tooltip-qm {
+  float: left;
+  margin: -2px 0px 3px 4px;
+  font-size: 12px;
+}
+
+.tooltip-inner {
+  max-width: 436px !important;
+  font-size: 16px;
+  padding: 10px 15px 10px 20px;
+  background: #FFFFFF;
+  color: rgba(0, 0, 0, .7);
+  border: 1px solid #737373;
+  text-align: left;
+}
+
+.tooltip.show {
+  opacity: 1;
+}
+
+.bs-tooltip-auto[x-placement^=bottom] .arrow::before,
+.bs-tooltip-bottom .arrow::before {
+  border-bottom-color: #f00;
+  /* Red */
 }
 
 .token-set {

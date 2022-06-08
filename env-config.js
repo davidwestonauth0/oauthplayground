@@ -7,7 +7,7 @@ const {
   VERCEL_URL,
   VERCEL_GITHUB_REPO,
   VERCEL_GITHUB_ORG,
-  PORT = 7000,
+  PORT = 3000,
 } = process.env;
 
 const appUrl = VERCEL_URL
