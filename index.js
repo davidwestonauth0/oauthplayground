@@ -13,23 +13,10 @@ const jwksRsa = require("jwks-rsa");
 const jwt_decode = require("jwt-decode");
 const jwtAuthz = require("express-jwt-authz");
 
-var client_id = '';
-var scope = '';
-var audience = '';
-var redirectUri = '';
-var domain = '';
-var requestUrl = '';
-var responseUrl = '';
-var access_token = '';
-var id_token = '';
-var refresh_token = '';
-var mfa_token = '';
-var send = "";
-var user_info_endpoint = "";
 
-const appUrl = process.env.VERCEL_URL
+const APP_URL = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_GITHUB_REPO}-git-master-${process.env.VERCEL_GITHUB_ORG.toLowerCase()}.vercel.app`
-  : `http://localhost:${process.env.PORT}`;
+  : `http://localhost:${process.env.PORT}`
 
 const {
   checkUrl,
@@ -58,6 +45,19 @@ app.use(
     secret: SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
+    requestUrl: '',
+    responseUrl: '',
+    access_token: '',
+    id_token: '',
+    refresh_token: '',
+    mfa_token: '',
+    send: '',
+    user_info_endpoint: '',
+    client_id: '',
+    scope: '',
+    audience: '',
+    redirectUri: '',
+    domain: '',
   })
 );
 
@@ -91,7 +91,6 @@ app.get("/logmeout", async (req, res, next) => {
 
 app.get("/authorization_code", async (req, res, next) => {
 
-
     if (req.query.code) {
       try {
         res.render("authorization_code", {
@@ -123,10 +122,10 @@ app.get("/authorization_code", async (req, res, next) => {
 app.post("/authorization_code", async (req, res, next) => {
 
       if (req.body.id_token || req.body.access_token || req.body.refresh_token) {
-                requestUrl = req.url;
-                access_token = req.body.access_token;
-                refresh_token = req.body.refresh_token;
-                id_token = req.body.id_token;
+                req.session.requestUrl = req.url;
+                req.session.access_token = req.body.access_token;
+                req.session.refresh_token = req.body.refresh_token;
+                req.session.id_token = req.body.id_token;
               try {
                 res.render("authorization_code", {
                 requestUrl: requestUrl, access_token: req.body.access_token, id_token: req.body.id_token, refresh_token: req.body.refresh_token});
@@ -174,16 +173,15 @@ app.post("/authorization_code", async (req, res, next) => {
           requestUrl = clientServerOptions.uri + JSON.stringify(clientServerOptions.form);
           request(clientServerOptions, function (error, response) {
                 responseUrl = req.url;
-                console.log(response.body);
                 const body = JSON.parse(response.body);
               try {
-
+                req.session.requestUrl = req.url;
+                req.session.access_token = req.body.access_token;
+                req.session.refresh_token = req.body.refresh_token;
+                req.session.id_token = req.body.id_token;
                 res.render("authorization_code", {
                 request: clientServerOptions, response: response, requestUrl: requestUrl, access_token: body.access_token, id_token: body.id_token, refresh_token: body.refresh_token});
-                access_token = body.access_token;
-                refresh_token = body.refresh_token;
-                id_token = body.id_token;
-                client_id = req.body.client_id
+
               } catch (err) {
                 console.log(err);
                 next(err);
@@ -226,7 +224,6 @@ app.post("/authorization_code", async (req, res, next) => {
 
 app.get("/authorization_code_pkce", async (req, res, next) => {
 
-
     if (req.query.code) {
       try {
         res.render("authorization_code_pkce", {
@@ -258,11 +255,10 @@ app.get("/authorization_code_pkce", async (req, res, next) => {
 app.post("/authorization_code_pkce", async (req, res, next) => {
 
       if (req.body.id_token || req.body.access_token || req.body.refresh_token) {
-                responseUrl = req.url;
-                access_token = req.body.access_token;
-                refresh_token = req.body.refresh_token;
-                id_token = req.body.id_token;
-                console.log(req.body.response.body);
+                req.session.requestUrl = req.url;
+                req.session.access_token = req.body.access_token;
+                req.session.refresh_token = req.body.refresh_token;
+                req.session.id_token = req.body.id_token;
               try {
                 res.render("authorization_code_pkce", {
                 request: JSON.parse(req.body.request), response: JSON.parse(req.body.response), requestUrl: requestUrl, access_token: req.body.access_token, id_token: req.body.id_token, refresh_token: req.body.refresh_token});
@@ -337,15 +333,15 @@ app.get("/implicit", async (req, res, next) => {
 });
 
 app.post("/implicit", async (req, res, next) => {
-
   if (req.body.id_token || req.body.access_token) {
             responseUrl = req.url;
           try {
+              req.access_token = req.body.access_token;
+              req.session.id_token = req.body.id_token;
+              req.session.refresh_token = req.body.refresh_token;
             res.render("implicit", {
             request: "TBC", response: req, requestUrl: requestUrl, access_token: req.body.access_token, id_token: req.body.id_token, refresh_token: req.body.refresh_token});
-            access_token = req.body.access_token;
-            id_token = req.body.id_token;
-            refresh_token = req.body.refresh_token;
+
           } catch (err) {
             console.log(err);
             next(err);
@@ -394,7 +390,6 @@ app.post("/implicit", async (req, res, next) => {
 
 
 app.get("/device_code", async (req, res, next) => {
-
   try {
     res.render("device_code", {
     requestUrl: ""});
@@ -406,7 +401,6 @@ app.get("/device_code", async (req, res, next) => {
 
 
 app.post("/device_code", async (req, res, next) => {
-
     if (req.body.device_code) {
 
           var clientServerOptions = {
@@ -438,11 +432,12 @@ app.post("/device_code", async (req, res, next) => {
                 } else {
 
                   try {
+                  req.session.access_token = body.access_token;
+                  refresh_token = body.refresh_token;
+                  req.session.id_token = body.id_token;
                     res.render("device_code", {
                     request: clientServerOptions, response: response, requestUrl: requestUrl, access_token: body.access_token, id_token: body.id_token, refresh_token: body.refresh_token});
-                    access_token = body.access_token;
-                    refresh_token = body.refresh_token;
-                    id_token = body.id_token;
+
                   } catch (err) {
                     console.log(err);
                     next(err);
@@ -451,8 +446,7 @@ app.post("/device_code", async (req, res, next) => {
               //return;
           });
       } else {
-            console.log(req.body.scope);
-            console.log(req.body.audience);
+
             var clientServerOptions = {
                   uri: 'https://'+process.env.DOMAIN+'/oauth/device/code',
                     form: {
@@ -502,7 +496,6 @@ app.post("/device_code", async (req, res, next) => {
 
 
 app.get("/revoke", async (req, res, next) => {
-
   try {
     res.render("revoke", {
     requestUrl: "", refresh_token: refresh_token});
@@ -560,10 +553,9 @@ app.post("/revoke", async (req, res, next) => {
 });
 
 app.get("/refresh_token", async (req, res, next) => {
-
   try {
     res.render("refresh_token", {
-    requestUrl: "", refresh_token: refresh_token});
+    requestUrl: "", refresh_token: req.session.refresh_token});
   } catch (err) {
     console.log(err);
     next(err);
@@ -606,13 +598,14 @@ app.post("/refresh_token", async (req, res, next) => {
             } else {
 
               try {
+                  req.session.access_token = body.access_token;
+                  if (body.refresh_token) {
+                      req.session.refresh_token = body.refresh_token;
+                  }
+                  req.session.id_token = body.id_token;
                 res.render("refresh_token", {
                 request: clientServerOptions, response: response, requestUrl: requestUrl, access_token: body.access_token, id_token: body.id_token, refresh_token: body.refresh_token});
-                access_token = body.access_token;
-                if (body.refresh_token) {
-                    refresh_token = body.refresh_token;
-                }
-                id_token = body.id_token;
+
               } catch (err) {
                 console.log(err);
                 next(err);
@@ -624,7 +617,6 @@ app.post("/refresh_token", async (req, res, next) => {
 
 
 app.get("/client_credentials", async (req, res, next) => {
-
   try {
     res.render("client_credentials", {
     requestUrl: ""});
@@ -667,9 +659,10 @@ app.post("/client_credentials", async (req, res, next) => {
                 } else {
 
                   try {
+                  req.session.access_token = body.access_token;
                     res.render("client_credentials", {
                     request: clientServerOptions, response: response, requestUrl: requestUrl, access_token: body.access_token});
-                    access_token = body.access_token;
+
                   } catch (err) {
                     console.log(err);
                     next(err);
@@ -682,7 +675,6 @@ app.post("/client_credentials", async (req, res, next) => {
 
 
 app.get("/passwordless", async (req, res, next) => {
-
 
   try {
     res.render("passwordless", {
@@ -724,8 +716,7 @@ app.post("/passwordless", async (req, res, next) => {
 
                    if (response.statusCode != 200) {
                          try {
-                            console.log("here");
-                            console.log(username);
+
                            res.render("passwordless", {
                            request: clientServerOptions, response: response, requestUrl: requestUrl, error: response.body.error, error_description: response.body.error_description, mfa_token: response.body.mfa_token, realm: req.body.realm, audience: req.body.audience, scope: req.body.scope, username: username, send: send});
                          } catch (err) {
@@ -735,11 +726,12 @@ app.post("/passwordless", async (req, res, next) => {
                    } else {
 
                      try {
+                       req.session.access_token = req.body.access_token;
+                       req.session.refresh_token = req.body.refresh_token;
+                       req.session.id_token = req.body.id_token;
                        res.render("passwordless", {
                        request: clientServerOptions, response: response, requestUrl: requestUrl, access_token: response.body.access_token, id_token: response.body.id_token, refresh_token: response.body.refresh_token});
-                       access_token = response.body.access_token;
-                       refresh_token = response.body.refresh_token;
-                       id_token = response.body.id_token;
+
                      } catch (err) {
                        console.log(err);
                        next(err);
@@ -749,11 +741,12 @@ app.post("/passwordless", async (req, res, next) => {
              });
     } else if(req.body.access_token || req.body.id_token) {
          try {
+           req.session.access_token = req.body.access_token;
+           req.session.refresh_token = req.body.refresh_token;
+           req.session.id_token = req.body.id_token;
            res.render("passwordless", {
            request: req.body.request, response: req.body.response, error: req.body.error, error_description: req.body.error_description, requestUrl: requestUrl, access_token: req.body.access_token, id_token: req.body.id_token, refresh_token: req.body.refresh_token});
-           access_token = req.body.access_token;
-           refresh_token = req.body.refresh_token;
-           id_token = req.body.id_token;
+
 
          } catch (err) {
            console.log(err);
@@ -816,7 +809,6 @@ app.post("/passwordless", async (req, res, next) => {
 
 
 app.get("/password", async (req, res, next) => {
-
   try {
     res.render("password", {
     requestUrl: ""});
@@ -866,12 +858,12 @@ app.post("/password", async (req, res, next) => {
                 } else {
 
                   try {
-                    console.log(body);
+                    req.session.access_token = body.access_token;
+                    req.session.refresh_token = body.refresh_token;
+                    req.session.id_token = body.id_token;
                     res.render("password", {
                     request: clientServerOptions, response: response, requestUrl: requestUrl, access_token: body.access_token, id_token: body.id_token, refresh_token: body.refresh_token});
-                    access_token = body.access_token;
-                    refresh_token = body.refresh_token;
-                    id_token = body.id_token;
+
                   } catch (err) {
                     console.log(err);
                     next(err);
@@ -883,7 +875,6 @@ app.post("/password", async (req, res, next) => {
 
 
 app.get("/mfa", async (req, res, next) => {
-
   try {
     res.render("mfa", {
     requestUrl: "", mfa_token: mfa_token});
@@ -894,7 +885,6 @@ app.get("/mfa", async (req, res, next) => {
 });
 
 app.post("/mfa", async (req, res, next) => {
-
           if (req.body.mfa_token && !req.body.authenticator_id && !req.body.oob_code) {
               var clientServerOptions = {
                   uri: 'https://'+process.env.DOMAIN+'/mfa/authenticators?active=true',
@@ -910,7 +900,6 @@ app.post("/mfa", async (req, res, next) => {
 
                 if (response.statusCode != 200) {
                     const body = JSON.parse(response.body);
-                    console.log(body);
                       try {
 
                         res.render("mfa", {
@@ -1006,7 +995,6 @@ app.post("/mfa", async (req, res, next) => {
 
 
                    const body = JSON.parse(response.body);
-                   console.log(body);
                    responseUrl = JSON.stringify(body);
                     if (response.statusCode != 200) {
                       try {
@@ -1020,11 +1008,12 @@ app.post("/mfa", async (req, res, next) => {
                 } else {
 
                   try {
+                    req.session.access_token = body.access_token;
+                    req.session.refresh_token = body.refresh_token;
+                    req.session.id_token = body.id_token;
                     res.render("mfa", {
                     request: clientServerOptions, response: response, requestUrl: requestUrl, responseUrl: responseUrl, access_token: body.access_token, id_token: body.id_token, refresh_token: body.refresh_token});
-                    access_token = body.access_token;
-                    refresh_token = body.refresh_token;
-                    id_token = body.id_token;
+
                   } catch (err) {
                     console.log(err);
                     next(err);
@@ -1040,7 +1029,7 @@ app.post("/mfa", async (req, res, next) => {
 
 app.get("/user_info", async (req, res, next) => {
   try {
-    res.render("user_info", { access_token: access_token, id_token: id_token});
+    res.render("user_info", { access_token: req.session.access_token, id_token: req.session.id_token});
   } catch (err) {
     next(err);
   }
@@ -1048,7 +1037,6 @@ app.get("/user_info", async (req, res, next) => {
 
 app.post("/user_info", async (req, res, next) => {
  try {
-
 
       var clientServerOptions = {
           uri: req.body.user_info_endpoint,
@@ -1081,7 +1069,7 @@ app.post("/user_info", async (req, res, next) => {
 
 app.get("/call_api", async (req, res, next) => {
   try {
-    res.render("call_api", { access_token: access_token});
+    res.render("call_api", { access_token: req.session.access_token});
   } catch (err) {
     next(err);
   }
@@ -1089,12 +1077,10 @@ app.get("/call_api", async (req, res, next) => {
 
 app.post("/call_api", async (req, res, next) => {
  try {
-        var uri = "/read-api";
-       if (req.body.action == "write") {
+     var uri = "/read-api";
+     if (req.body.action == "write") {
         uri = "/write-api";
-       }
-
-
+     }
 
       var clientServerOptions = {
           uri: process.env.API_URL + uri,
@@ -1103,20 +1089,18 @@ app.post("/call_api", async (req, res, next) => {
               'Authorization': 'Bearer ' + req.body.access_token
           }
       }
-        console.log("here");
-        console.log(clientServerOptions.uri);
+
       requestUrl = "url: " + clientServerOptions.uri + " body: " + JSON.stringify(clientServerOptions.json) + " headers: " + JSON.stringify(clientServerOptions.headers);
       request(clientServerOptions, function (error, response) {
             responseUrl = req.url;
-            //console.log(response);
-            //console.log(error);
+
             if (response.statusCode == 200) {
                    res.render("call_api", {
-                     request: clientServerOptions, response: response, data: response.body, access_token: access_token
+                     request: clientServerOptions, response: response, data: response.body, access_token: req.session.access_token
                    });
             } else {
                 res.render("call_api", {
-                request: clientServerOptions, response: response, error: response.body, access_token: access_token
+                request: clientServerOptions, response: response, error: response.body, access_token: req.session.access_token
                 });
             }
 
