@@ -14,10 +14,6 @@ const jwt_decode = require("jwt-decode");
 const jwtAuthz = require("express-jwt-authz");
 
 
-const APP_URL = process.env.VERCEL_URL
-  ? `https://${process.env.VERCEL_GITHUB_REPO}-git-master-${process.env.VERCEL_GITHUB_ORG.toLowerCase()}.vercel.app`
-  : `http://localhost:${process.env.PORT}`
-
 const {
   checkUrl,
   APP_URL, // Public URL for this app
@@ -80,7 +76,7 @@ app.get("/", async (req, res, next) => {
 
 app.get("/logmeout", async (req, res, next) => {
   try {
-    var url = 'https://'+process.env.DOMAIN+'/v2/logout?returnTo='+appUrl+'&client_id='+process.env.CLIENT_ID
+    var url = 'https://'+process.env.DOMAIN+'/v2/logout?returnTo='+APP_URL+'&client_id='+process.env.CLIENT_ID
     requestUrl = url;
 
     res.redirect(303, url);
