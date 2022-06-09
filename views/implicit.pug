@@ -69,7 +69,7 @@ block content
                                 td
                                     p(class="required tooltip" data-toggle='tooltip', data-placement='right', title='The URL to which Auth0 will redirect the browser after authorization has been granted by the user.') redirect_uri:
                                 td
-                                    input(type="text" required name="redirect_uri" id="redirect_uri" style="width:400px" value="http://localhost:3001/implicit")
+                                    input(type="text" required name="redirect_uri" id="redirect_uri" style="width:400px" value=APP_URL+/implicit")
                               tr
                                 td
                                     p(class="tooltip" data-toggle='tooltip', data-placement='right', title='The unique identifier of the target API you want to access.') audience:

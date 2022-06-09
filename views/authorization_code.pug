@@ -76,7 +76,7 @@ block content
                                 td
                                     p(class="required tooltip" data-toggle='tooltip', data-placement='right', title='The URL to which Auth0 will redirect the browser after authorization has been granted by the user. This must match the original request') redirect_uri:
                                 td
-                                    input(type="text" required name="redirect_uri" id="redirect_uri" style="width:400px" value="http://localhost:3001/authorization_code")
+                                    input(type="text" required name="redirect_uri" id="redirect_uri" style="width:400px" value=APP_URL+/authorization_code")
                               tr
                                 td
                                     p(class="required tooltip" data-toggle='tooltip', data-placement='right', title='Denotes the flow you are using. For Authorization Code, use authorization_code') grant_type:
@@ -103,7 +103,7 @@ block content
                                 td
                                     p(class="required tooltip" data-toggle='tooltip', data-placement='right', title='The URL to which Auth0 will redirect the browser after authorization has been granted by the user.') redirect_uri:
                                 td
-                                    input(type="text" required name="redirect_uri" id="redirect_uri" style="width:400px" value="http://localhost:3001/authorization_code")
+                                    input(type="text" required name="redirect_uri" id="redirect_uri" style="width:400px" value=APP_URL+/authorization_code")
                               tr
                                 td
                                     p(class="tooltip" data-toggle='tooltip', data-placement='right', title='The unique identifier of the target API you want to access.') audience:
