@@ -27,6 +27,10 @@ var mfa_token = '';
 var send = "";
 var user_info_endpoint = "";
 
+const appUrl = VERCEL_URL
+  ? `https://${VERCEL_GITHUB_REPO}-git-master-${VERCEL_GITHUB_ORG.toLowerCase()}.vercel.app`
+  : `http://localhost:${PORT}`;
+
 const {
   checkUrl,
   APP_URL, // Public URL for this app
@@ -76,7 +80,7 @@ app.get("/", async (req, res, next) => {
 
 app.get("/logmeout", async (req, res, next) => {
   try {
-    var url = 'https://'+process.env.DOMAIN+'/v2/logout?returnTo=http://localhost:3001&client_id='+process.env.CLIENT_ID
+    var url = 'https://'+process.env.DOMAIN+'/v2/logout?returnTo='+appUrl+'&client_id='+process.env.CLIENT_ID
     requestUrl = url;
 
     res.redirect(303, url);
