@@ -27,9 +27,9 @@ var mfa_token = '';
 var send = "";
 var user_info_endpoint = "";
 
-const appUrl = VERCEL_URL
-  ? `https://${VERCEL_GITHUB_REPO}-git-master-${VERCEL_GITHUB_ORG.toLowerCase()}.vercel.app`
-  : `http://localhost:${PORT}`;
+const appUrl = process.env.VERCEL_URL
+  ? `https://${process.env.VERCEL_GITHUB_REPO}-git-master-${process.env.VERCEL_GITHUB_ORG.toLowerCase()}.vercel.app`
+  : `http://localhost:${process.env.PORT}`;
 
 const {
   checkUrl,
