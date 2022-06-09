@@ -7,10 +7,6 @@
       "config": {
         "includeFiles": ["views/*.pug", "public/**"]
       }
-    },
-    {
-      "src": "api/server.js",
-      "use": "@vercel/node"
     }
   ],
   "routes": [
