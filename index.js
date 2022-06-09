@@ -1097,7 +1097,7 @@ app.post("/call_api", async (req, res, next) => {
 
 
       var clientServerOptions = {
-          uri: process.env.API_URL + ':'+process.env.API_PORT + uri,
+          uri: process.env.API_URL + uri,
           method: 'GET',
           headers: {
               'Authorization': 'Bearer ' + req.body.access_token
