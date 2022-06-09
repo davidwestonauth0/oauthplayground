@@ -1103,12 +1103,13 @@ app.post("/call_api", async (req, res, next) => {
               'Authorization': 'Bearer ' + req.body.access_token
           }
       }
-        console.log(clientServerOptions);
+        console.log("here");
+        console.log(clientServerOptions.uri);
       requestUrl = "url: " + clientServerOptions.uri + " body: " + JSON.stringify(clientServerOptions.json) + " headers: " + JSON.stringify(clientServerOptions.headers);
       request(clientServerOptions, function (error, response) {
             responseUrl = req.url;
             console.log(response);
-            console.log(err);
+            console.log(error);
             if (response.statusCode == 200) {
                    res.render("call_api", {
                      request: clientServerOptions, response: response, data: response.body, access_token: access_token
