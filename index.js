@@ -40,6 +40,7 @@ const oneDay = 1000 * 60 * 60 * 24;
 
 app.set('trust proxy', 1)
 app.use(session({
+  secret: 'secret',
   resave: true,
   cookie: {
     maxAge: 24 * 60 * 60 * 365 * 1000
