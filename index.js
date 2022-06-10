@@ -36,10 +36,13 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
+const oneDay = 1000 * 60 * 60 * 24;
+
 app.use(
   session({
     secret: SESSION_SECRET,
-    resave: true,
+    resave: false,
+    cookie: { maxAge: oneDay },
     saveUninitialized: true,
   })
 );
