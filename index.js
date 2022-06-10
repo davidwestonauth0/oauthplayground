@@ -44,9 +44,7 @@ app.use(
   })
 );
 
-const nocache = require('nocache');
 
-app.use(nocache());
 
 app.use(function(req, res, next) {
   res.locals.app = app;
@@ -54,7 +52,6 @@ app.use(function(req, res, next) {
   next();
 });
 
-app.disable('view cache');
 
 app.get("/", async (req, res, next) => {
   try {
