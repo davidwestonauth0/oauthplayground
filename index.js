@@ -38,14 +38,14 @@ app.use(express.static(path.join(__dirname, "public")));
 
 const oneDay = 1000 * 60 * 60 * 24;
 
-app.set('trust proxy', 1)
-app.use(session({
-  secret: 'secret',
-  resave: true,
-  cookie: {
-    maxAge: 24 * 60 * 60 * 365 * 1000
-  }
-}))
+app.use(
+  session({
+    secret: SESSION_SECRET,
+    resave: false,
+    cookie: { maxAge: oneDay },
+    saveUninitialized: true,
+  })
+);
 
 
 
@@ -826,7 +826,7 @@ function getScope(req) {
 
 app.post("/password", async (req, res, next) => {
 
-
+        req.session.test1 = "sdfsdf";
 
           var clientServerOptions = {
               uri: 'https://'+process.env.DOMAIN+'/oauth/token',
@@ -868,6 +868,8 @@ app.post("/password", async (req, res, next) => {
                     req.session.refresh_token = body.refresh_token;
                     req.session.id_token = body.id_token;
                     req.session.client_id = req.body.client_id;
+                    req.session.save();
+                    req.session.test2 = "dfdf";
                     res.render("password", {
                     request: clientServerOptions, response: response, access_token: body.access_token, id_token: body.id_token, refresh_token: body.refresh_token});
 
@@ -1064,6 +1066,8 @@ app.post("/user_info", async (req, res, next) => {
 
 app.get("/call_api", async (req, res, next) => {
   try {
+    console.log(req.session.test1);
+    console.log(req.session.test2);
     res.render("call_api", { access_token: req.session.access_token});
   } catch (err) {
     next(err);
