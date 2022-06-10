@@ -38,14 +38,14 @@ app.use(express.static(path.join(__dirname, "public")));
 
 const oneDay = 1000 * 60 * 60 * 24;
 
-app.use(
-  session({
-    secret: SESSION_SECRET,
-    resave: false,
-    cookie: { maxAge: oneDay },
-    saveUninitialized: true,
-  })
-);
+app.set('trust proxy', 1)
+app.use(session({
+  secret: 'secret',
+  resave: true,
+  cookie: {
+    maxAge: 24 * 60 * 60 * 365 * 1000
+  }
+}))
 
 
 
