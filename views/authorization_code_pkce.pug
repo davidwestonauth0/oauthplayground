@@ -121,9 +121,20 @@ block content
                                     input(type="text" name="audience" id="audience" style="width:400px" value=process.env.AUDIENCE)
                               tr
                                 td
-                                    p(class="tooltip" data-toggle='tooltip', data-placement='right', title='include offline_access to request refresh_token. Add read:test and/or write:test for testing RBAC. Add stepup:test for testing contextual MFA') scope:
+                                    p(class="required tooltip", data-toggle='tooltip', data-placement='right', title='include offline_access to request refresh_token. Add read:test and/or write:test for testing RBAC. Add stepup:test for testing contextual MFA') scope:
                                 td
-                                    input(type="text" name="scope" id="scope" style="width:400px" value="openid profile email offline_access")
+                                      each val, index in ['scope_openid;true', 'scope_email;true', 'scope_profile;true', 'scope_offline_access;true', 'scope_read;true', 'scope_write;false', 'scope_stepup;false']
+                                          if(val.split(";")[1]=="true")
+                                            input.checkbox-input(type='checkbox', name=val.split(";")[0], checked=val.split(";")[1], id=`${val.split(";")[0]}`)
+                                          else
+                                            input.checkbox-input(type='checkbox', name=val.split(";")[0], id=`${val.split(";")[0]}`)
+
+                                          label(for=`${val.split(";")[0]}`)=val.split(";")[0].replace("scope_","")
+                              tr
+                                td
+                                   p
+                                td
+                                    input(type="text" name="scope" id="scope" style="width:400px" value="")
                               tr
                                 td
                                     p(class="required tooltip" data-toggle='tooltip', data-placement='right', title='how the authorization_code should be returned; in the query string or as a form POST') response_mode:
@@ -347,7 +358,7 @@ block content
                           let response = {body:body, status:xhr.status, responseHeaders: xhr.getAllResponseHeaders()};
 
                           let request = {body:params, method: 'POST', uri: uri, requestHeaders: JSON.parse('{"Content-type": "application/x-www-form-urlencoded"}')};
-                          post(window.location.pathname, {response: JSON.stringify(response), request: JSON.stringify(request), id_token: body.id_token, access_token: body.access_token, refresh_token: body.refresh_token});
+                          post(window.location.pathname, {response: JSON.stringify(response), request: JSON.stringify(request), client_id: document.getElementById('client_id').value, id_token: body.id_token, access_token: body.access_token, refresh_token: body.refresh_token});
 
                       } else if(xhr.readyState == 4 && xhr.status != 200) {
                         var body = JSON.parse(xhr.responseText);
@@ -360,7 +371,7 @@ block content
 
                   } else {
 
-                      var url = 'https://'+document.getElementById('domain').value+'/authorize?response_mode='+document.getElementById('response_mode').value+'&response_type='+document.getElementById('response_type').value+'&code_challenge='+document.getElementById('code_challenge').value+'&code_challenge_method='+document.getElementById('code_challenge_method').value+'&client_id='+document.getElementById('client_id').value+'&redirect_uri='+document.getElementById('redirect_uri').value+'&audience='+document.getElementById('audience').value+'&scope='+document.getElementById('scope').value+'&state='+document.getElementById('state').value+'&nonce='+document.getElementById('nonce').value
+                      var url = 'https://'+document.getElementById('domain').value+'/authorize?response_mode='+document.getElementById('response_mode').value+'&response_type='+document.getElementById('response_type').value+'&code_challenge='+document.getElementById('code_challenge').value+'&code_challenge_method='+document.getElementById('code_challenge_method').value+'&client_id='+document.getElementById('client_id').value+'&redirect_uri='+document.getElementById('redirect_uri').value+'&audience='+document.getElementById('audience').value+'&scope='+getScope()+'&state='+document.getElementById('state').value+'&nonce='+document.getElementById('nonce').value
                       if (document.getElementById('connection').value !="") {
                           url = url + '&connection='+document.getElementById('connection').value
                       }

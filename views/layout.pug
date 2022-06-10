@@ -31,6 +31,46 @@ html
   body
     include header.pug
     script.
+
+        function getScope() {
+            console.log('in get scope');
+            var scope = "";
+
+            if (document.getElementById('scope_email').checked) {
+                scope = scope + " email"
+            }
+
+            if (document.getElementById('scope_profile').checked) {
+                scope = scope + " profile"
+            }
+
+            if (document.getElementById('scope_openid').checked) {
+                scope = scope + " openid"
+            }
+
+            if (document.getElementById('scope_offline_access').checked) {
+                scope = scope + " offline_access"
+            }
+
+            if (document.getElementById('scope_read').checked) {
+                scope = scope + " read:test"
+            }
+
+            if (document.getElementById('scope_write').checked) {
+                scope = scope + " write:test"
+            }
+
+            if (document.getElementById('scope_stepup').checked) {
+                scope = scope + " stepup:test"
+            }
+
+            if (document.getElementById('scope_profile').value != '') {
+                scope = scope + " " + document.getElementById('scope_profile').value;
+            }
+
+            return scope;
+        }
+
         function post(path, params, method='post') {
 
           // The rest of this code assumes you are not using a library.

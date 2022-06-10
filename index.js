@@ -41,19 +41,6 @@ app.use(
     secret: SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
-    requestUrl: '',
-    responseUrl: '',
-    access_token: '',
-    id_token: '',
-    refresh_token: '',
-    mfa_token: '',
-    send: '',
-    user_info_endpoint: '',
-    client_id: '',
-    scope: '',
-    audience: '',
-    redirectUri: '',
-    domain: '',
   })
 );
 
@@ -77,7 +64,6 @@ app.get("/", async (req, res, next) => {
 app.get("/logmeout", async (req, res, next) => {
   try {
     var url = 'https://'+process.env.DOMAIN+'/v2/logout?returnTo='+APP_URL+'&client_id='+process.env.CLIENT_ID
-    requestUrl = url;
 
     res.redirect(303, url);
   } catch (err) {
@@ -107,7 +93,7 @@ app.get("/authorization_code", async (req, res, next) => {
 
       try {
         res.render("authorization_code", {
-        requestUrl: ""});
+        });
       } catch (err) {
         console.log(err);
         next(err);
@@ -118,13 +104,13 @@ app.get("/authorization_code", async (req, res, next) => {
 app.post("/authorization_code", async (req, res, next) => {
 
       if (req.body.id_token || req.body.access_token || req.body.refresh_token) {
-                req.session.requestUrl = req.url;
                 req.session.access_token = req.body.access_token;
                 req.session.refresh_token = req.body.refresh_token;
                 req.session.id_token = req.body.id_token;
+                req.session.client_id = req.body.client_id;
               try {
                 res.render("authorization_code", {
-                requestUrl: requestUrl, access_token: req.body.access_token, id_token: req.body.id_token, refresh_token: req.body.refresh_token});
+                access_token: req.body.access_token, id_token: req.body.id_token, refresh_token: req.body.refresh_token});
               } catch (err) {
                 console.log(err);
                 next(err);
@@ -133,17 +119,16 @@ app.post("/authorization_code", async (req, res, next) => {
             try {
               if (req.body.request) {
                   res.render("authorization_code", {
-                  request: JSON.parse(req.body.request), response: JSON.parse(req.body.response), requestUrl: requestUrl, error: req.body.error, error_description: req.body.error_description});
+                  request: JSON.parse(req.body.request), response: JSON.parse(req.body.response), error: req.body.error, error_description: req.body.error_description});
               } else {
                   res.render("authorization_code", {
-                  request: "TBC", response: req, requestUrl: requestUrl, error: req.body.error, error_description: req.body.error_description});
+                  request: "TBC", response: req, error: req.body.error, error_description: req.body.error_description});
               }
             } catch (err) {
               console.log(err);
               next(err);
             }
       } else if (req.body.code && !req.body.client_secret) {
-              responseUrl = req.url;
             try {
           res.render("authorization_code", {
           request: "TBC", response: req, code: req.body.code});
@@ -166,17 +151,15 @@ app.post("/authorization_code", async (req, res, next) => {
                   'Content-Type': 'application/x-www-form-urlencoded'
               }
           }
-          requestUrl = clientServerOptions.uri + JSON.stringify(clientServerOptions.form);
           request(clientServerOptions, function (error, response) {
-                responseUrl = req.url;
                 const body = JSON.parse(response.body);
               try {
-                req.session.requestUrl = req.url;
-                req.session.access_token = req.body.access_token;
-                req.session.refresh_token = req.body.refresh_token;
-                req.session.id_token = req.body.id_token;
+                req.session.access_token = body.access_token;
+                req.session.refresh_token = body.refresh_token;
+                req.session.id_token = body.id_token;
+                req.session.client_id = req.body.client_id;
                 res.render("authorization_code", {
-                request: clientServerOptions, response: response, requestUrl: requestUrl, access_token: body.access_token, id_token: body.id_token, refresh_token: body.refresh_token});
+                request: clientServerOptions, response: response, access_token: body.access_token, id_token: body.id_token, refresh_token: body.refresh_token});
 
               } catch (err) {
                 console.log(err);
@@ -209,8 +192,6 @@ app.post("/authorization_code", async (req, res, next) => {
                 url = url + '&login_hint='+req.body.login_hint
             }
 
-            requestUrl = url;
-
             res.redirect(303, url);
           } catch (err) {
             next(err);
@@ -240,7 +221,7 @@ app.get("/authorization_code_pkce", async (req, res, next) => {
 
       try {
         res.render("authorization_code_pkce", {
-        requestUrl: ""});
+        });
       } catch (err) {
         console.log(err);
         next(err);
@@ -251,13 +232,13 @@ app.get("/authorization_code_pkce", async (req, res, next) => {
 app.post("/authorization_code_pkce", async (req, res, next) => {
 
       if (req.body.id_token || req.body.access_token || req.body.refresh_token) {
-                req.session.requestUrl = req.url;
                 req.session.access_token = req.body.access_token;
                 req.session.refresh_token = req.body.refresh_token;
                 req.session.id_token = req.body.id_token;
+                req.session.client_id = req.body.client_id;
               try {
                 res.render("authorization_code_pkce", {
-                request: JSON.parse(req.body.request), response: JSON.parse(req.body.response), requestUrl: requestUrl, access_token: req.body.access_token, id_token: req.body.id_token, refresh_token: req.body.refresh_token});
+                request: JSON.parse(req.body.request), response: JSON.parse(req.body.response), access_token: req.body.access_token, id_token: req.body.id_token, refresh_token: req.body.refresh_token});
               } catch (err) {
                 console.log(err);
                 next(err);
@@ -266,17 +247,16 @@ app.post("/authorization_code_pkce", async (req, res, next) => {
           try {
             if (req.body.request) {
                 res.render("authorization_code_pkce", {
-                request: JSON.parse(req.body.request), response: JSON.parse(req.body.response), requestUrl: requestUrl, error: req.body.error, error_description: req.body.error_description});
+                request: JSON.parse(req.body.request), response: JSON.parse(req.body.response), error: req.body.error, error_description: req.body.error_description});
             } else {
                 res.render("authorization_code_pkce", {
-                request: "TBC", response: req, requestUrl: requestUrl, error: req.body.error, error_description: req.body.error_description});
+                request: "TBC", response: req, error: req.body.error, error_description: req.body.error_description});
             }
           } catch (err) {
             console.log(err);
             next(err);
           }
       } else if(req.body.code) {
-            responseUrl = req.url;
           try {
         res.render("authorization_code_pkce", {
         request: "TBC", response: req, code: req.body.code});
@@ -308,7 +288,6 @@ app.post("/authorization_code_pkce", async (req, res, next) => {
                 url = url + '&login_hint='+req.body.login_hint
             }
 
-            requestUrl = url;
 
             res.redirect(303, url);
           } catch (err) {
@@ -318,10 +297,9 @@ app.post("/authorization_code_pkce", async (req, res, next) => {
 });
 
 app.get("/implicit", async (req, res, next) => {
-    responseUrl = req.url;
   try {
     res.render("implicit", {
-    requestUrl: ""});
+   });
   } catch (err) {
     console.log(err);
     next(err);
@@ -330,23 +308,20 @@ app.get("/implicit", async (req, res, next) => {
 
 app.post("/implicit", async (req, res, next) => {
   if (req.body.id_token || req.body.access_token) {
-            responseUrl = req.url;
           try {
-              req.access_token = req.body.access_token;
-              req.session.id_token = req.body.id_token;
-              req.session.refresh_token = req.body.refresh_token;
+            req.session.access_token = req.body.access_token;
+            req.session.id_token = req.body.id_token;
             res.render("implicit", {
-            request: "TBC", response: req, requestUrl: requestUrl, access_token: req.body.access_token, id_token: req.body.id_token, refresh_token: req.body.refresh_token});
+            request: "TBC", response: req, access_token: req.body.access_token, id_token: req.body.id_token, refresh_token: req.body.refresh_token});
 
           } catch (err) {
             console.log(err);
             next(err);
           }
   } else if (req.body.error) {
-        responseUrl = req.url;
       try {
         res.render("implicit", {
-        request: "TBC", response: req, requestUrl: requestUrl, error: req.body.error, error_description: req.body.error_description});
+        request: "TBC", response: req, error: req.body.error, error_description: req.body.error_description});
       } catch (err) {
         console.log(err);
         next(err);
@@ -375,7 +350,6 @@ app.post("/implicit", async (req, res, next) => {
         url = url + '&login_hint='+req.body.login_hint
     }
 
-    requestUrl = url;
 
     res.redirect(303, url);
   } catch (err) {
@@ -388,7 +362,7 @@ app.post("/implicit", async (req, res, next) => {
 app.get("/device_code", async (req, res, next) => {
   try {
     res.render("device_code", {
-    requestUrl: ""});
+    });
   } catch (err) {
     console.log(err);
     next(err);
@@ -412,15 +386,13 @@ app.post("/device_code", async (req, res, next) => {
               }
           }
 
-          requestUrl = "url: " + clientServerOptions.uri + " body: " + JSON.stringify(clientServerOptions.form) + " headers: " + JSON.stringify(clientServerOptions.headers);
           request(clientServerOptions, function (error, response) {
-                responseUrl = req.url;
                 const body = JSON.parse(response.body);
 
                 if (response.statusCode != 200) {
                       try {
                         res.render("device_code", {
-                        request: clientServerOptions, response: response, requestUrl: requestUrl, device_code: req.body.device_code, user_code: req.body.user_code, verification_uri: req.body.verification_uri, verification_uri_complete: req.body.verification_uri_complete, error: body.error, error_description: body.error_description});
+                        request: clientServerOptions, response: response, device_code: req.body.device_code, user_code: req.body.user_code, verification_uri: req.body.verification_uri, verification_uri_complete: req.body.verification_uri_complete, error: body.error, error_description: body.error_description});
                       } catch (err) {
                         console.log(err);
                         next(err);
@@ -431,8 +403,9 @@ app.post("/device_code", async (req, res, next) => {
                   req.session.access_token = body.access_token;
                   refresh_token = body.refresh_token;
                   req.session.id_token = body.id_token;
+                  req.session.client_id = req.body.client_id;
                     res.render("device_code", {
-                    request: clientServerOptions, response: response, requestUrl: requestUrl, access_token: body.access_token, id_token: body.id_token, refresh_token: body.refresh_token});
+                    request: clientServerOptions, response: response, access_token: body.access_token, id_token: body.id_token, refresh_token: body.refresh_token});
 
                   } catch (err) {
                     console.log(err);
@@ -448,7 +421,7 @@ app.post("/device_code", async (req, res, next) => {
                     form: {
                       audience: req.body.audience,
                       client_id: req.body.client_id,
-                      scope: req.body.scope
+                      scope: getScope(req)
                     },
                   method: 'POST',
                   headers: {
@@ -457,16 +430,14 @@ app.post("/device_code", async (req, res, next) => {
               }
 
 
-              requestUrl = "url: " + clientServerOptions.uri + " body: " + JSON.stringify(clientServerOptions.form) + " headers: " + JSON.stringify(clientServerOptions.headers);
               request(clientServerOptions, function (error, response) {
-                    responseUrl = req.url;
 
                     const body = JSON.parse(response.body);
 
                     if (response.statusCode != 200) {
                           try {
                             res.render("device_code", {
-                            request: clientServerOptions, response: response, requestUrl: requestUrl, error: body.error, error_description: body.error_description});
+                            request: clientServerOptions, response: response, error: body.error, error_description: body.error_description});
                           } catch (err) {
                             console.log(err);
                             next(err);
@@ -476,7 +447,7 @@ app.post("/device_code", async (req, res, next) => {
                     QRCode.toDataURL(body.verification_uri_complete, function (err, qr) {
                         try {
                           res.render("device_code", {
-                          qr: qr, request: clientServerOptions, response: response, requestUrl: requestUrl, device_code: body.device_code, user_code: body.user_code, verification_uri: body.verification_uri, verification_uri_complete: body.verification_uri_complete});
+                          qr: qr, request: clientServerOptions, response: response, device_code: body.device_code, user_code: body.user_code, verification_uri: body.verification_uri, verification_uri_complete: body.verification_uri_complete});
                         } catch (err) {
                           console.log(err);
                           next(err);
@@ -494,7 +465,7 @@ app.post("/device_code", async (req, res, next) => {
 app.get("/revoke", async (req, res, next) => {
   try {
     res.render("revoke", {
-    requestUrl: "", refresh_token: refresh_token});
+    client_id: req.session.client_id, refresh_token: req.session.refresh_token});
   } catch (err) {
     console.log(err);
     next(err);
@@ -519,16 +490,14 @@ app.post("/revoke", async (req, res, next) => {
         clientServerOptions.form.client_secret = req.body.client_secret
       }
 
-      requestUrl = "url: " + clientServerOptions.uri + " body: " + JSON.stringify(clientServerOptions.form) + " headers: " + JSON.stringify(clientServerOptions.headers);
       request(clientServerOptions, function (error, response) {
-            responseUrl = req.url;
 
             const body = response.body;
 
             if (response.statusCode != 200) {
                   try {
                     res.render("revoke", {
-                    request: clientServerOptions, response: response, requestUrl: requestUrl, error: body.error, error_description: body.error_description, refresh_token: req.body.token});
+                    request: clientServerOptions, response: response, error: body.error, error_description: body.error_description, refresh_token: req.body.token});
                   } catch (err) {
                     console.log(err);
                     next(err);
@@ -537,7 +506,7 @@ app.post("/revoke", async (req, res, next) => {
 
               try {
                 res.render("revoke", {
-                request: clientServerOptions, response: response, requestUrl: requestUrl, refresh_token: req.body.token});
+                request: clientServerOptions, response: response, refresh_token: req.body.token});
 
               } catch (err) {
                 console.log(err);
@@ -551,7 +520,7 @@ app.post("/revoke", async (req, res, next) => {
 app.get("/refresh_token", async (req, res, next) => {
   try {
     res.render("refresh_token", {
-    requestUrl: "", refresh_token: req.session.refresh_token});
+    refresh_token: req.session.refresh_token, client_id: req.session.client_id});
   } catch (err) {
     console.log(err);
     next(err);
@@ -565,7 +534,7 @@ app.post("/refresh_token", async (req, res, next) => {
               grant_type: req.body.grant_type,
               client_id: req.body.client_id,
               refresh_token: req.body.refresh_token,
-              scope: req.body.scope
+              scope: getScope(req)
             },
           method: 'POST',
           headers: {
@@ -577,16 +546,14 @@ app.post("/refresh_token", async (req, res, next) => {
         clientServerOptions.form.client_secret = req.body.client_secret
       }
 
-      requestUrl = "url: " + clientServerOptions.uri + " body: " + JSON.stringify(clientServerOptions.form) + " headers: " + JSON.stringify(clientServerOptions.headers);
       request(clientServerOptions, function (error, response) {
-            responseUrl = req.url;
 
             const body = JSON.parse(response.body);
 
             if (response.statusCode != 200) {
                   try {
                     res.render("refresh_token", {
-                    request: clientServerOptions, response: response, requestUrl: requestUrl, error: body.error, error_description: body.error_description, refresh_token: req.body.refresh_token});
+                    request: clientServerOptions, response: response, error: body.error, error_description: body.error_description, refresh_token: req.body.refresh_token});
                   } catch (err) {
                     console.log(err);
                     next(err);
@@ -595,12 +562,13 @@ app.post("/refresh_token", async (req, res, next) => {
 
               try {
                   req.session.access_token = body.access_token;
+                  req.session.client_id = req.body.client_id;
                   if (body.refresh_token) {
                       req.session.refresh_token = body.refresh_token;
                   }
                   req.session.id_token = body.id_token;
                 res.render("refresh_token", {
-                request: clientServerOptions, response: response, requestUrl: requestUrl, access_token: body.access_token, id_token: body.id_token, refresh_token: body.refresh_token});
+                request: clientServerOptions, response: response, access_token: body.access_token, id_token: body.id_token, refresh_token: body.refresh_token});
 
               } catch (err) {
                 console.log(err);
@@ -615,7 +583,7 @@ app.post("/refresh_token", async (req, res, next) => {
 app.get("/client_credentials", async (req, res, next) => {
   try {
     res.render("client_credentials", {
-    requestUrl: ""});
+    });
   } catch (err) {
     console.log(err);
     next(err);
@@ -630,7 +598,7 @@ app.post("/client_credentials", async (req, res, next) => {
                   client_id: req.body.client_id,
                   client_secret: req.body.client_secret,
                   audience: req.body.audience,
-                  scope: req.body.scope
+                  scope: getScope(req)
                 },
               method: 'POST',
               headers: {
@@ -638,16 +606,14 @@ app.post("/client_credentials", async (req, res, next) => {
               }
           }
 
-          requestUrl = "url: " + clientServerOptions.uri + " body: " + JSON.stringify(clientServerOptions.form) + " headers: " + JSON.stringify(clientServerOptions.headers);
           request(clientServerOptions, function (error, response) {
-                responseUrl = req.url;
 
                 const body = JSON.parse(response.body);
 
                 if (response.statusCode != 200) {
                       try {
                         res.render("client_credentials", {
-                        request: clientServerOptions, response: response, requestUrl: requestUrl, error: body.error, error_description: body.error_description});
+                        request: clientServerOptions, response: response, error: body.error, error_description: body.error_description});
                       } catch (err) {
                         console.log(err);
                         next(err);
@@ -656,8 +622,9 @@ app.post("/client_credentials", async (req, res, next) => {
 
                   try {
                   req.session.access_token = body.access_token;
+                  req.session.client_id = req.body.client_id;
                     res.render("client_credentials", {
-                    request: clientServerOptions, response: response, requestUrl: requestUrl, access_token: body.access_token});
+                    request: clientServerOptions, response: response, access_token: body.access_token});
 
                   } catch (err) {
                     console.log(err);
@@ -673,9 +640,10 @@ app.post("/client_credentials", async (req, res, next) => {
 app.get("/passwordless", async (req, res, next) => {
 
   try {
+    req.session.send = "";
     res.render("passwordless", {
-    requestUrl: "", send: send});
-    send = "";
+    send: req.session.send});
+
   } catch (err) {
     console.log(err);
     next(err);
@@ -695,7 +663,7 @@ app.post("/passwordless", async (req, res, next) => {
                      otp: req.body.otp,
                      grant_type: req.body.grant_type,
                      audience: req.body.audience,
-                     scope: req.body.scope
+                     scope: getScope(req)
                    },
                  method: 'POST',
                  headers: {
@@ -705,16 +673,13 @@ app.post("/passwordless", async (req, res, next) => {
              }
              var username = req.body.username;
 
-             requestUrl = "url: " + clientServerOptions.uri + " body: " + JSON.stringify(clientServerOptions.json) + " headers: " + JSON.stringify(clientServerOptions.headers);
              request(clientServerOptions, function (error, response) {
-                   responseUrl = req.url;
-
 
                    if (response.statusCode != 200) {
                          try {
 
                            res.render("passwordless", {
-                           request: clientServerOptions, response: response, requestUrl: requestUrl, error: response.body.error, error_description: response.body.error_description, mfa_token: response.body.mfa_token, realm: req.body.realm, audience: req.body.audience, scope: req.body.scope, username: username, send: send});
+                           request: clientServerOptions, response: response, error: response.body.error, error_description: response.body.error_description, mfa_token: response.body.mfa_token, realm: req.body.realm, audience: req.body.audience, scope: req.body.scope, username: username, send: req.session.send});
                          } catch (err) {
                            console.log(err);
                            next(err);
@@ -722,11 +687,12 @@ app.post("/passwordless", async (req, res, next) => {
                    } else {
 
                      try {
-                       req.session.access_token = req.body.access_token;
-                       req.session.refresh_token = req.body.refresh_token;
-                       req.session.id_token = req.body.id_token;
+                       req.session.access_token = response.body.access_token;
+                       req.session.refresh_token = response.body.refresh_token;
+                       req.session.id_token = response.body.id_token;
+                       req.session.client_id = req.body.client_id;
                        res.render("passwordless", {
-                       request: clientServerOptions, response: response, requestUrl: requestUrl, access_token: response.body.access_token, id_token: response.body.id_token, refresh_token: response.body.refresh_token});
+                       request: clientServerOptions, response: response, access_token: response.body.access_token, id_token: response.body.id_token, refresh_token: response.body.refresh_token});
 
                      } catch (err) {
                        console.log(err);
@@ -740,8 +706,9 @@ app.post("/passwordless", async (req, res, next) => {
            req.session.access_token = req.body.access_token;
            req.session.refresh_token = req.body.refresh_token;
            req.session.id_token = req.body.id_token;
+           req.session.client_id = req.body.client_id;
            res.render("passwordless", {
-           request: req.body.request, response: req.body.response, error: req.body.error, error_description: req.body.error_description, requestUrl: requestUrl, access_token: req.body.access_token, id_token: req.body.id_token, refresh_token: req.body.refresh_token});
+           request: req.body.request, response: req.body.response, error: req.body.error, error_description: req.body.error_description, access_token: req.body.access_token, id_token: req.body.id_token, refresh_token: req.body.refresh_token});
 
 
          } catch (err) {
@@ -756,7 +723,7 @@ app.post("/passwordless", async (req, res, next) => {
               client_secret: req.body.client_secret,
               connection: req.body.connection,
               send: req.body.send,
-              authParams: { redirect_uri: req.body.redirect_uri, audience: req.body.audience, scope: req.body.scope, response_type: req.body.response_type, response_mode: req.body.response_mode, nonce: req.body.nonce, state: req.body.state }
+              authParams: { redirect_uri: req.body.redirect_uri, audience: req.body.audience, scope: getScope(req), response_type: req.body.response_type, response_mode: req.body.response_mode, nonce: req.body.nonce, state: req.body.state }
             },
           method: 'POST',
           headers: {
@@ -772,15 +739,12 @@ app.post("/passwordless", async (req, res, next) => {
         clientServerOptions.json.phone_number = req.body.phone_number;
         username = req.body.phone_number;
        }
-      requestUrl = "url: " + clientServerOptions.uri + " body: " + JSON.stringify(clientServerOptions.json) + " headers: " + JSON.stringify(clientServerOptions.headers);
       request(clientServerOptions, function (error, response) {
-            responseUrl = req.url;
-
 
             if (response.statusCode != 200) {
                   try {
                     res.render("passwordless", {
-                    request: clientServerOptions, response: response, requestUrl: requestUrl, error: response.body.error, error_description: response.body.error_description, mfa_token: response.body.mfa_token});
+                    request: clientServerOptions, response: response, error: response.body.error, error_description: response.body.error_description, mfa_token: response.body.mfa_token});
                   } catch (err) {
                     console.log(err);
                     next(err);
@@ -788,9 +752,9 @@ app.post("/passwordless", async (req, res, next) => {
             } else {
 
               try {
-                send = req.body.send;
+                req.session.send = req.body.send;
                 res.render("passwordless", {
-                request: clientServerOptions, response: response, requestUrl: requestUrl, realm: req.body.connection, audience: req.body.audience, scope: req.body.scope, username: username, send: req.body.send});
+                request: clientServerOptions, response: response, realm: req.body.connection, audience: req.body.audience, scope: getScope(req), username: username, send: req.body.send});
               } catch (err) {
                 console.log(err);
                 next(err);
@@ -807,15 +771,59 @@ app.post("/passwordless", async (req, res, next) => {
 app.get("/password", async (req, res, next) => {
   try {
     res.render("password", {
-    requestUrl: ""});
+    });
   } catch (err) {
     console.log(err);
     next(err);
   }
 });
 
+function getScope(req) {
+
+    var scope = "";
+
+    if (req.body.scope_email) {
+        scope = scope + " email"
+    }
+
+    if (req.body.scope_profile) {
+        scope = scope + " profile"
+    }
+
+    if (req.body.scope_openid) {
+        scope = scope + " openid"
+    }
+
+    if (req.body.scope_offline_access) {
+        scope = scope + " offline_access"
+    }
+
+    if (req.body.scope_read) {
+        scope = scope + " read:test"
+    }
+
+    if (req.body.scope_write) {
+        scope = scope + " write:test"
+    }
+
+    if (req.body.scope_stepup) {
+        scope = scope + " stepup:test"
+    }
+
+    if (req.body.scope) {
+        scope = scope + " " + req.body.scope;
+    }
+
+    scope=scope.trim();
+
+    return scope;
+}
+
 
 app.post("/password", async (req, res, next) => {
+
+
+
           var clientServerOptions = {
               uri: 'https://'+process.env.DOMAIN+'/oauth/token',
                 form: {
@@ -825,7 +833,7 @@ app.post("/password", async (req, res, next) => {
                   username: req.body.username,
                   password: req.body.password,
                   audience: req.body.audience,
-                  scope: req.body.scope
+                  scope: getScope(req)
                 },
               method: 'POST',
               headers: {
@@ -836,16 +844,14 @@ app.post("/password", async (req, res, next) => {
            if (req.body.realm!="" && req.body.grant_type == "http://auth0.com/oauth/grant-type/password-realm") {
             clientServerOptions.form.realm = req.body.realm;
            }
-          requestUrl = "url: " + clientServerOptions.uri + " body: " + JSON.stringify(clientServerOptions.form) + " headers: " + JSON.stringify(clientServerOptions.headers);
           request(clientServerOptions, function (error, response) {
-                responseUrl = req.url;
 
                 const body = JSON.parse(response.body);
 
                 if (response.statusCode != 200) {
                       try {
                         res.render("password", {
-                        request: clientServerOptions, response: response, requestUrl: requestUrl, error: body.error, error_description: body.error_description, mfa_token: body.mfa_token});
+                        request: clientServerOptions, response: response, error: body.error, error_description: body.error_description, mfa_token: body.mfa_token});
                         mfa_token = body.mfa_token;
                       } catch (err) {
                         console.log(err);
@@ -857,8 +863,9 @@ app.post("/password", async (req, res, next) => {
                     req.session.access_token = body.access_token;
                     req.session.refresh_token = body.refresh_token;
                     req.session.id_token = body.id_token;
+                    req.session.client_id = req.body.client_id;
                     res.render("password", {
-                    request: clientServerOptions, response: response, requestUrl: requestUrl, access_token: body.access_token, id_token: body.id_token, refresh_token: body.refresh_token});
+                    request: clientServerOptions, response: response, access_token: body.access_token, id_token: body.id_token, refresh_token: body.refresh_token});
 
                   } catch (err) {
                     console.log(err);
@@ -873,7 +880,7 @@ app.post("/password", async (req, res, next) => {
 app.get("/mfa", async (req, res, next) => {
   try {
     res.render("mfa", {
-    requestUrl: "", mfa_token: mfa_token});
+    mfa_token: mfa_token});
   } catch (err) {
     console.log(err);
     next(err);
@@ -890,16 +897,14 @@ app.post("/mfa", async (req, res, next) => {
                   }
               }
 
-              requestUrl = "url: " + clientServerOptions.uri + "<br> headers: " + JSON.stringify(clientServerOptions.headers);
               request(clientServerOptions, function (error, response) {
-              responseUrl = req.url;
 
                 if (response.statusCode != 200) {
                     const body = JSON.parse(response.body);
                       try {
 
                         res.render("mfa", {
-                        request: clientServerOptions, response: response, requestUrl: requestUrl, responseUrl: responseUrl, error: body.error, error_description: body.error_description, mfa_token: req.body.mfa_token});
+                        request: clientServerOptions, response: response, error: body.error, error_description: body.error_description, mfa_token: req.body.mfa_token});
                       } catch (err) {
                         console.log(err);
                         next(err);
@@ -910,9 +915,8 @@ app.post("/mfa", async (req, res, next) => {
                       const body = JSON.parse(response.body);
                       const authenticator_id = body[0].id;
                       const authenticator_type = body[0].authenticator_type;
-                      responseUrl = JSON.stringify(body);
                     res.render("mfa", {
-                    request: clientServerOptions, response: response, requestUrl: requestUrl, responseUrl: responseUrl, authenticator_id: authenticator_id, challenge_type: authenticator_type, mfa_token: req.body.mfa_token});
+                    request: clientServerOptions, response: response, authenticator_id: authenticator_id, challenge_type: authenticator_type, mfa_token: req.body.mfa_token});
                   } catch (err) {
                     console.log(err);
                     next(err);
@@ -938,17 +942,14 @@ app.post("/mfa", async (req, res, next) => {
                   }
               }
 
-              requestUrl = "url: " + clientServerOptions.uri + " <br>headers: " + JSON.stringify(clientServerOptions.headers) + " <br>body: " + JSON.stringify(clientServerOptions.json);
               request(clientServerOptions, function (error, response) {
-              responseUrl = req.url;
                 const body = response.body;
-                responseUrl = JSON.stringify(body);
                 if (response.statusCode != 200) {
 
                       try {
 
                         res.render("mfa", {
-                        request: clientServerOptions, response: response, requestUrl: requestUrl, responseUrl: responseUrl, error: body.error, error_description: body.error_description, mfa_token: req.body.mfa_token, authenticator_id: req.body.authenticator_id});
+                        request: clientServerOptions, response: response, error: body.error, error_description: body.error_description, mfa_token: req.body.mfa_token, authenticator_id: req.body.authenticator_id});
                       } catch (err) {
                         console.log(err);
                         next(err);
@@ -957,7 +958,7 @@ app.post("/mfa", async (req, res, next) => {
 
                   try {
                     res.render("mfa", {
-                    request: clientServerOptions, response: response, requestUrl: requestUrl, responseUrl: responseUrl, authenticator_id: req.body.authenticator_id, mfa_token: req.body.mfa_token, oob_code: body.oob_code});
+                    request: clientServerOptions, response: response, authenticator_id: req.body.authenticator_id, mfa_token: req.body.mfa_token, oob_code: body.oob_code});
                   } catch (err) {
                     console.log(err);
                     next(err);
@@ -985,17 +986,13 @@ app.post("/mfa", async (req, res, next) => {
                      }
                  }
 
-                 requestUrl = "url: " + clientServerOptions.uri + " <br>headers: " + JSON.stringify(clientServerOptions.headers) + " <br>body: " + JSON.stringify(clientServerOptions.form);
                  request(clientServerOptions, function (error, response) {
-                 responseUrl = req.url;
-
 
                    const body = JSON.parse(response.body);
-                   responseUrl = JSON.stringify(body);
                     if (response.statusCode != 200) {
                       try {
                         res.render("mfa", {
-                        request: clientServerOptions, response: response, requestUrl: requestUrl, responseUrl: responseUrl, error: body.error, error_description: body.error_description});
+                        request: clientServerOptions, response: response, error: body.error, error_description: body.error_description});
                         mfa_token = body.mfa_token;
                       } catch (err) {
                         console.log(err);
@@ -1008,7 +1005,7 @@ app.post("/mfa", async (req, res, next) => {
                     req.session.refresh_token = body.refresh_token;
                     req.session.id_token = body.id_token;
                     res.render("mfa", {
-                    request: clientServerOptions, response: response, requestUrl: requestUrl, responseUrl: responseUrl, access_token: body.access_token, id_token: body.id_token, refresh_token: body.refresh_token});
+                    request: clientServerOptions, response: response, access_token: body.access_token, id_token: body.id_token, refresh_token: body.refresh_token});
 
                   } catch (err) {
                     console.log(err);
@@ -1042,9 +1039,7 @@ app.post("/user_info", async (req, res, next) => {
           }
       }
 
-      requestUrl = "url: " + clientServerOptions.uri + " body: " + JSON.stringify(clientServerOptions.json) + " headers: " + JSON.stringify(clientServerOptions.headers);
       request(clientServerOptions, function (error, response) {
-            responseUrl = req.url;
 
             if (response.statusCode == 200) {
                    res.render("user_info", {
@@ -1086,9 +1081,7 @@ app.post("/call_api", async (req, res, next) => {
           }
       }
 
-      requestUrl = "url: " + clientServerOptions.uri + " body: " + JSON.stringify(clientServerOptions.json) + " headers: " + JSON.stringify(clientServerOptions.headers);
       request(clientServerOptions, function (error, response) {
-            responseUrl = req.url;
 
             if (response.statusCode == 200) {
                    res.render("call_api", {

@@ -77,9 +77,20 @@ block content
                                     input(type="text" name="audience" id="audience" style="width:400px" value=process.env.AUDIENCE)
                               tr
                                 td
-                                    p(class="tooltip" data-toggle='tooltip', data-placement='right', title='include offline_access to request refresh_token. Add read:test and/or write:test for testing RBAC. Add stepup:test for testing contextual MFA') scope:
+                                    p(class="required tooltip", data-toggle='tooltip', data-placement='right', title='include offline_access to request refresh_token. Add read:test and/or write:test for testing RBAC. Add stepup:test for testing contextual MFA') scope:
                                 td
-                                    input(type="text" name="scope" id="scope" style="width:400px" value="openid profile email offline_access")
+                                      each val, index in ['scope_openid;true', 'scope_email;true', 'scope_profile;true', 'scope_offline_access;true', 'scope_read;true', 'scope_write;false', 'scope_stepup;false']
+                                          if(val.split(";")[1]=="true")
+                                            input.checkbox-input(type='checkbox', name=val.split(";")[0], checked=val.split(";")[1], id=`${val.split(";")[0]}`)
+                                          else
+                                            input.checkbox-input(type='checkbox', name=val.split(";")[0], id=`${val.split(";")[0]}`)
+
+                                          label(for=`${val.split(";")[0]}`)=val.split(";")[0].replace("scope_","")
+                              tr
+                                td
+                                   p
+                                td
+                                    input(type="text" name="scope" id="scope" style="width:400px" value="")
                               tr
                                 td
                                     p(class="required tooltip" data-toggle='tooltip', data-placement='right', title='how the authorization_code should be returned; in the query string or as a form POST') response_mode:

@@ -63,9 +63,10 @@ block content
                                     p(class="required tooltip", data-toggle='tooltip', data-placement='right', title='Your applications client ID') client_id:
                                 td
                                   select(name="client_id" id="client_id" style="width:400px")
-                                    option(value=process.env.CLIENT_ID) #{process.env.CLIENT_ID}
-                                    option(value=process.env.CLIENT_ID_SPA) #{process.env.CLIENT_ID_SPA}
-                                    option(value=process.env.CLIENT_ID_NATIVE) #{process.env.CLIENT_ID_NATIVE}
+                                    option(value=client_id) #{client_id}
+                                    option(value=process.env.CLIENT_ID) WebApp #{process.env.CLIENT_ID}
+                                    option(value=process.env.CLIENT_ID_SPA) SPA #{process.env.CLIENT_ID_SPA}
+                                    option(value=process.env.CLIENT_ID_NATIVE) Native #{process.env.CLIENT_ID_NATIVE}
                               tr
                                 td
                                     p(class="required tooltip", data-toggle='tooltip', data-placement='right', title='Your applications Client Secret.') client_secret:
@@ -78,15 +79,26 @@ block content
                                     input(type="text" required name="refresh_token" id="refresh_token" style="width:400px" value=refresh_token)
                               tr
                                 td
-                                    p(class="required tooltip", data-toggle='tooltip', data-placement='right', title='include offline_access to request refresh_token. Add read:grants and/or write:grants for testing RBAC') scope:
-                                td
-                                    input(type="text" required name="scope" id="scope" style="width:400px" value="openid profile offline_access")
-                              tr
-                                td
                                     p(class="required tooltip", data-toggle='tooltip', data-placement='right', title='Denotes the flow you are using. To refresh a token, use refresh_token.') grant_type:
                                 td
                                     select(name="grant_type" required id="grant_type" style="width:400px")
                                       option(value="refresh_token") refresh_token
+                              tr
+                                td
+                                  p(class="required tooltip", data-toggle='tooltip', data-placement='right', title='include offline_access to request refresh_token. Add read:test and/or write:test for testing RBAC. Add stepup:test for testing contextual MFA') scope:
+                                td
+                                    each val, index in ['scope_openid;true', 'scope_email;true', 'scope_profile;true', 'scope_offline_access;true', 'scope_read;true', 'scope_write;false', 'scope_stepup;false']
+                                        if(val.split(";")[1]=="true")
+                                          input.checkbox-input(type='checkbox', name=val.split(";")[0], checked=val.split(";")[1], id=`${val.split(";")[0]}`)
+                                        else
+                                          input.checkbox-input(type='checkbox', name=val.split(";")[0], id=`${val.split(";")[0]}`)
+
+                                        label(for=`${val.split(";")[0]}`)=val.split(";")[0].replace("scope_","")
+                              tr
+                                td
+                                   p
+                                td
+                                    input(type="text" name="scope" id="scope" style="width:400px" value="")
 
                         input(type="submit")
 

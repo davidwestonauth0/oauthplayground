@@ -7,11 +7,10 @@ block content
 
           tr
             td(style="vertical-align: top;text-align: left; max-width:40%; padding: 10px;")
-                p(id="request_url" style="word-break: break-all; white-space: normal;") #{requestUrl}
-                p(id="response_url" style="word-break: break-all; white-space: normal;") #{responseUrl}
-
-                p(id="error" style="display:none; word-break: break-all; white-space: normal;") #{error}
-                p(id="error_description" style="display:none; word-break: break-all; white-space: normal;") #{error_description}
+                if error
+                    h3(style="color: red; margin-left: 0px;padding-left: 0px !important;") Error
+                    pre
+                        code(id="error_details" class="prettyprint" style="word-break: break-all; white-space: normal;") error: #{error} #{response.statusCode} <br> error_description: #{error_description}
 
                 if id_token
                     if id_token
@@ -47,15 +46,6 @@ block content
                                 td
                                     pre
                                         code(id="refresh_token" style="word-break: break-all; white-space: normal;") #{refresh_token}
-                else
-                    if error
-                        p error
-                        p(id="error" style="width:1400px; word-break: break-all; white-space: normal;") #{error}
-                        p error_description
-                        p(id="error_description" style="width:1400px; word-break: break-all; white-space: normal;") #{error_description}
-                        p mfa_token
-                        p(id="mfa_token" style="width:1400px; word-break: break-all; white-space: normal;") #{mfa_token}
-
 
                 if !authenticator_id && !id_token
                     form(action="/mfa" method="POST")

@@ -12,9 +12,10 @@ block content
 
                     p client_id:
                       select(name="client_id" id="client_id" style="width:400px")
-                        option(value=process.env.CLIENT_ID) #{process.env.CLIENT_ID}
-                        option(value=process.env.CLIENT_ID_SPA) #{process.env.CLIENT_ID_SPA}
-                        option(value=process.env.CLIENT_ID_NATIVE) #{process.env.CLIENT_ID_NATIVE}
+                        option(value=client_id) #{client_id}
+                        option(value=process.env.CLIENT_ID) WebApp #{process.env.CLIENT_ID}
+                        option(value=process.env.CLIENT_ID_SPA) SPA #{process.env.CLIENT_ID_SPA}
+                        option(value=process.env.CLIENT_ID_NATIVE) Native #{process.env.CLIENT_ID_NATIVE}
                     p client_secret:
                       input(type="text" name="client_secret" id="client_secret" style="width:400px" value=process.env.CLIENT_SECRET)
                     p token:
