@@ -54,7 +54,7 @@ app.use(function(req, res, next) {
   next();
 });
 
-
+app.disable('view cache');
 
 app.get("/", async (req, res, next) => {
   try {
