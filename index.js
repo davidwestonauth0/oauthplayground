@@ -1022,6 +1022,7 @@ app.post("/mfa", async (req, res, next) => {
 
 app.get("/user_info", async (req, res, next) => {
   try {
+    res.setHeader('Cache-Control', 'no-cache');
     res.render("user_info", { access_token: req.session.access_token, id_token: req.session.id_token});
   } catch (err) {
     next(err);
@@ -1060,6 +1061,7 @@ app.post("/user_info", async (req, res, next) => {
 
 app.get("/call_api", async (req, res, next) => {
   try {
+    res.setHeader('Cache-Control', 'no-cache');
     res.render("call_api", { access_token: req.session.access_token});
   } catch (err) {
     next(err);
