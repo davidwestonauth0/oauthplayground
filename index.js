@@ -44,6 +44,9 @@ app.use(
   })
 );
 
+const nocache = require('nocache');
+
+app.use(nocache());
 
 app.use(function(req, res, next) {
   res.locals.app = app;
