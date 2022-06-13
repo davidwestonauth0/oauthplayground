@@ -913,7 +913,7 @@ app.post("/password", async (req, res, next) => {
 app.get("/mfa", async (req, res, next) => {
   try {
     res.render("mfa", {
-    mfa_token: mfa_token});
+    mfa_token: req.session.mfa_token});
   } catch (err) {
     console.log(err);
     next(err);

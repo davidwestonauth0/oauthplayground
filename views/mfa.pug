@@ -57,35 +57,69 @@ block content
 
                 if authenticator_id && !oob_code
                     form(action="/mfa" method="POST")
+                        table(border='0' border-collapse: collapse;)
+                              tr
+                                td
+                                    p(class="required tooltip", data-toggle='tooltip', data-placement='right', title='Get from requesting stepup:test via ROPG') mfa_token:
+                                td
+                                    textarea(name="mfa_token" required id="mfa_token" style="height:200px; width:600px" value=mfa_token) #{mfa_token}
+                              tr
+                                td
+                                    p(class="required tooltip", data-toggle='tooltip', data-placement='right', title='The ID of the MFA enrolment to use') authenticator_id:
+                                td
+                                    input(type="text" name="authenticator_id" required id="authenticator_id" style="width:400px" value=authenticator_id)
+                              tr
+                                td
+                                    p(class="required tooltip", data-toggle='tooltip', data-placement='right', title='The application client id') client_id:
+                                td
+                                    input(type="text" name="client_id" required id="client_id" style="width:400px" value=process.env.CLIENT_ID)
+                              tr
+                                td
+                                    p(class="required tooltip", data-toggle='tooltip', data-placement='right', title='The application client secret') client_secret:
+                                td
+                                    input(type="text" name="client_secret" id="client_secret" style="width:400px" value=process.env.CLIENT_SECRET)
+                              tr
+                                td
+                                    p(class="required tooltip", data-toggle='tooltip', data-placement='right', title='The MFA Challenge type') challenge_type:
+                                td
+                                    input(type="text" name="challenge_type" id="challenge_type" style="width:400px" value=challenge_type)
 
-                        p mfa_token:
-                          textarea(name="mfa_token" id="mfa_token" style="height:200px; width:600px" value=mfa_token) #{mfa_token}
-                        p authenticator_id:
-                          input(type="text" name="authenticator_id" id="authenticator_id" style="width:400px" value=authenticator_id)
-                        p client_id:
-                          input(type="text" name="client_id" id="client_id" style="width:400px" value=process.env.CLIENT_ID)
-                        p client_secret:
-                          input(type="text" name="client_secret" id="client_secret" style="width:400px" value=process.env.CLIENT_SECRET)
-                        p challenge_type:
-                            input(type="text" name="challenge_type" id="challenge_type" style="width:400px" value=challenge_type)
                         input(type="submit")
 
                 if oob_code
                     form(action="/mfa" method="POST")
-                        p client_id:
-                          input(type="text" name="client_id" id="client_id" style="width:400px" value=process.env.CLIENT_ID)
-                        p client_secret:
-                          input(type="text" name="client_secret" id="client_secret" style="width:400px" value=process.env.CLIENT_SECRET)
-                        p(data-toggle='tooltip', data-placement='right', title='ff') mfa_token:
-                          input(type="text" name="mfa_token" id="mfa_token" style="width:400px" value=mfa_token)
-                        p(data-toggle='tooltip', data-placement='right', title='ddd') oob_code:
-                          input(type="text" name="oob_code" id="oob_code" style="width:400px" value=oob_code)
-                        p(data-toggle='tooltip', data-placement='right', title='ddd') binding_code:
-                          input(type="text" name="binding_code" id="binding_code" style="width:400px" value="")
-                        p(data-toggle='tooltip', data-placement='right', title='fd') grant_type:
-                            select(name="grant_type" id="grant_type" style="width:400px")
-                              option(value="http://auth0.com/oauth/grant-type/mfa-oob") http://auth0.com/oauth/grant-type/mfa-oob
-
+                        table(border='0' border-collapse: collapse;)
+                              tr
+                                td
+                                    p(class="required tooltip", data-toggle='tooltip', data-placement='right', title='Get from requesting stepup:test via ROPG') mfa_token:
+                                td
+                                    textarea(name="mfa_token" required id="mfa_token" style="height:200px; width:600px" value=mfa_token) #{mfa_token}
+                              tr
+                                td
+                                    p(class="required tooltip", data-toggle='tooltip', data-placement='right', title='The application client id') client_id:
+                                td
+                                    input(type="text" name="client_id" required id="client_id" style="width:400px" value=process.env.CLIENT_ID)
+                              tr
+                                td
+                                    p(class="required tooltip", data-toggle='tooltip', data-placement='right', title='The application client secret') client_secret:
+                                td
+                                    input(type="text" required name="client_secret" id="client_secret" style="width:400px" value=process.env.CLIENT_SECRET)
+                              tr
+                                td
+                                    p(class="required tooltip", data-toggle='tooltip', data-placement='right', title='The oob code') oob_code:
+                                td
+                                    input(type="text" required name="oob_code" id="oob_code" style="width:400px" value=oob_code)
+                              tr
+                                td
+                                    p(data-toggle='tooltip', data-placement='right', title='Enter the OTP received on the device') binding_code:
+                                td
+                                    input(type="text" required name="binding_code" id="binding_code" style="width:400px" value="")
+                              tr
+                                td
+                                    p(data-toggle='tooltip', data-placement='right', title='The grant_type to use') grant_type:
+                                td
+                                    select(name="grant_type" id="grant_type" style="width:400px")
+                                      option(value="http://auth0.com/oauth/grant-type/mfa-oob") http://auth0.com/oauth/grant-type/mfa-oob
 
                         input(type="submit")
 
