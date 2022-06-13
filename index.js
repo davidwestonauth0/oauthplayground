@@ -724,7 +724,6 @@ app.post("/passwordless", async (req, res, next) => {
           uri: 'https://'+process.env.DOMAIN+'/passwordless/start',
             json: {
               client_id: req.body.client_id,
-              client_secret: req.body.client_secret,
               connection: req.body.connection,
               send: req.body.send,
               authParams: { redirect_uri: req.body.redirect_uri, audience: req.body.audience, scope: getScope(req), response_type: req.body.response_type, response_mode: req.body.response_mode, nonce: req.body.nonce, state: req.body.state }
@@ -735,6 +734,9 @@ app.post("/passwordless", async (req, res, next) => {
               'auth0-forwarded-for': req.body.user_ip
           }
       }
+        if (req.body.client_secret.length>0 && req.body.client_id == process.env.CLIENT_ID) {
+          clientServerOptions.json.client_secret = req.body.client_secret
+        }
       var username = "";
        if (req.body.email!="" && req.body.connection == "email") {
         clientServerOptions.json.email = req.body.email;
