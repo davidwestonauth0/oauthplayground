@@ -415,7 +415,7 @@ block content
                 const params = Object.fromEntries(urlSearchParams.entries());
 
                 if(!document.getElementById("code") && (!('error' in params))) {
-                    //localStorage.clear();
+                    localStorage.clear();
                 } else if (!document.getElementById("id_token")) {
                   if ('code' in params) {
                     if(document.getElementById('request_url')) {

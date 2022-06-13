@@ -42,21 +42,21 @@ const oneDay = 1000 * 60 * 60 * 24;
 //
 const RedisStore = require('connect-redis')(session);
 
-const redisClient = redis.createClient({host: process.env.REDIS_HOST,
-                                        port: process.env.REDIS_PORT,
-                                        username: process.env.REDIS_USER,
-                                        password:process.env.REDIS_PASSWORD});
-
-redisClient.on('connect',() => {
-    console.log('connected to redis successfully!');
-})
-
-redisClient.on('error',(error) => {
-    console.log('Redis connection error :', error);
-})
+//const redisClient = redis.createClient({host: process.env.REDIS_HOST,
+//                                        port: process.env.REDIS_PORT,
+//                                        username: process.env.REDIS_USER,
+//                                        password:process.env.REDIS_PASSWORD});
+//
+//redisClient.on('connect',() => {
+//    console.log('connected to redis successfully!');
+//})
+//
+//redisClient.on('error',(error) => {
+//    console.log('Redis connection error :', error);
+//})
 
 app.use(session({
-    store: new RedisStore({ client: redisClient }),
+ //   store: new RedisStore({ client: redisClient }),
     secret: SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
@@ -876,8 +876,10 @@ app.post("/password", async (req, res, next) => {
            if (req.body.realm!="" && req.body.grant_type == "http://auth0.com/oauth/grant-type/password-realm") {
             clientServerOptions.form.realm = req.body.realm;
            }
-          request(clientServerOptions, function (error, response) {
 
+           console.log(clientServerOptions);
+          request(clientServerOptions, function (error, response) {
+                console.log(response.body);
                 const body = JSON.parse(response.body);
 
                 if (response.statusCode != 200) {
@@ -1117,14 +1119,14 @@ app.post("/call_api", async (req, res, next) => {
       }
 
       request(clientServerOptions, function (error, response) {
-
+            console.log(response);
             if (response.statusCode == 200) {
                    res.render("call_api", {
                      request: clientServerOptions, response: response, data: response.body, access_token: req.session.access_token
                    });
             } else {
                 res.render("call_api", {
-                request: clientServerOptions, response: response, error: response.body, access_token: req.session.access_token
+                request: clientServerOptions, response: response, error: response.body.data.message, access_token: req.session.access_token
                 });
             }
 
