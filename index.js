@@ -42,21 +42,21 @@ const oneDay = 1000 * 60 * 60 * 24;
 //
 const RedisStore = require('connect-redis')(session);
 
-//const redisClient = redis.createClient({host: process.env.REDIS_HOST,
-//                                        port: process.env.REDIS_PORT,
-//                                        username: process.env.REDIS_USER,
-//                                        password:process.env.REDIS_PASSWORD});
-//
-//redisClient.on('connect',() => {
-//    console.log('connected to redis successfully!');
-//})
-//
-//redisClient.on('error',(error) => {
-//    console.log('Redis connection error :', error);
-//})
+const redisClient = redis.createClient({host: process.env.REDIS_HOST,
+                                        port: process.env.REDIS_PORT,
+                                        username: process.env.REDIS_USER,
+                                        password:process.env.REDIS_PASSWORD});
+
+redisClient.on('connect',() => {
+    console.log('connected to redis successfully!');
+})
+
+redisClient.on('error',(error) => {
+    console.log('Redis connection error :', error);
+})
 
 app.use(session({
- //   store: new RedisStore({ client: redisClient }),
+    store: new RedisStore({ client: redisClient }),
     secret: SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
