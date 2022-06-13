@@ -44,7 +44,7 @@ const RedisStore = require('connect-redis')(session);
 
 const redisClient = redis.createClient({host: process.env.REDIS_HOST,
                                         port: process.env.REDIS_PORT,
-                                        username: process.env.REDIS_HOST,
+                                        username: process.env.REDIS_USER,
                                         password:process.env.REDIS_PASSWORD});
 
 redisClient.on('connect',() => {
