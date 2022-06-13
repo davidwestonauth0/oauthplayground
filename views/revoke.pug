@@ -8,20 +8,36 @@ block content
           tr
             td(style="vertical-align: top;text-align: left; max-width:40%; padding: 10px;")
 
-                form(action="/revoke" method="POST")
+                if error
+                    h3(style="color: red; margin-left: 0px;padding-left: 0px !important;") Error
+                    pre
+                        code(id="error_details" class="prettyprint" style="word-break: break-all; white-space: normal;") error: #{error} #{response.statusCode} <br> error_description: #{error_description}
 
-                    p client_id:
-                      select(name="client_id" id="client_id" style="width:400px")
-                        option(value=client_id) #{client_id}
-                        option(value=process.env.CLIENT_ID) WebApp #{process.env.CLIENT_ID}
-                        option(value=process.env.CLIENT_ID_SPA) SPA #{process.env.CLIENT_ID_SPA}
-                        option(value=process.env.CLIENT_ID_NATIVE) Native #{process.env.CLIENT_ID_NATIVE}
-                    p client_secret:
-                      input(type="text" name="client_secret" id="client_secret" style="width:400px" value=process.env.CLIENT_SECRET)
-                    p token:
-                      input(type="text" name="token" id="token" style="width:400px" value=refresh_token)
+                else
+                    form(action="/revoke" method="POST")
 
-                    input(type="submit")
+                        table(border='0' border-collapse: collapse;)
+                              tr
+                                td
+                                    p(class="required tooltip", data-toggle='tooltip', data-placement='right', title='Your applications client ID') client_id:
+                                td
+                                  select(name="client_id" id="client_id" style="width:400px")
+                                    option(value=client_id) #{client_id}
+                                    option(value=process.env.CLIENT_ID) WebApp #{process.env.CLIENT_ID}
+                                    option(value=process.env.CLIENT_ID_SPA) SPA #{process.env.CLIENT_ID_SPA}
+                                    option(value=process.env.CLIENT_ID_NATIVE) Native #{process.env.CLIENT_ID_NATIVE}
+                              tr
+                                td
+                                    p(class="required tooltip", data-toggle='tooltip', data-placement='right', title='Your applications Client Secret.') client_secret:
+                                td
+                                    input(type="text" required name="client_secret" id="client_secret" style="width:400px" value=process.env.CLIENT_SECRET)
+                              tr
+                                td
+                                    p(class="required tooltip", data-toggle='tooltip', data-placement='right', title='the refresh token you wish to revoke') refresh_token:
+                                td
+                                    input(type="text" required name="token" id="token" style="width:400px" value=refresh_token)
+
+                        input(type="submit")
 
             td(style="vertical-align: top;text-align: left; max-width:60%; padding: 10px;")
                 h1 revoke refresh_token

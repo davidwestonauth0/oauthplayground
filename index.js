@@ -132,6 +132,7 @@ app.post("/authorization_code", async (req, res, next) => {
                 req.session.refresh_token = req.body.refresh_token;
                 req.session.id_token = req.body.id_token;
                 req.session.client_id = req.body.client_id;
+                req.session.save();
               try {
                 res.render("authorization_code", {
                 access_token: req.body.access_token, id_token: req.body.id_token, refresh_token: req.body.refresh_token});
@@ -182,6 +183,7 @@ app.post("/authorization_code", async (req, res, next) => {
                 req.session.refresh_token = body.refresh_token;
                 req.session.id_token = body.id_token;
                 req.session.client_id = req.body.client_id;
+                req.session.save();
                 res.render("authorization_code", {
                 request: clientServerOptions, response: response, access_token: body.access_token, id_token: body.id_token, refresh_token: body.refresh_token});
 
@@ -260,6 +262,7 @@ app.post("/authorization_code_pkce", async (req, res, next) => {
                 req.session.refresh_token = req.body.refresh_token;
                 req.session.id_token = req.body.id_token;
                 req.session.client_id = req.body.client_id;
+                req.session.save();
               try {
                 res.render("authorization_code_pkce", {
                 request: JSON.parse(req.body.request), response: JSON.parse(req.body.response), access_token: req.body.access_token, id_token: req.body.id_token, refresh_token: req.body.refresh_token});
@@ -335,6 +338,8 @@ app.post("/implicit", async (req, res, next) => {
           try {
             req.session.access_token = req.body.access_token;
             req.session.id_token = req.body.id_token;
+            req.session.client_id = req.body.client_id;
+            req.session.save();
             res.render("implicit", {
             request: "TBC", response: req, access_token: req.body.access_token, id_token: req.body.id_token, refresh_token: req.body.refresh_token});
 
@@ -428,6 +433,7 @@ app.post("/device_code", async (req, res, next) => {
                   refresh_token = body.refresh_token;
                   req.session.id_token = body.id_token;
                   req.session.client_id = req.body.client_id;
+                  req.session.save();
                     res.render("device_code", {
                     request: clientServerOptions, response: response, access_token: body.access_token, id_token: body.id_token, refresh_token: body.refresh_token});
 
@@ -849,7 +855,6 @@ function getScope(req) {
 
 app.post("/password", async (req, res, next) => {
 
-        req.session.test1 = "sdfsdf";
 
           var clientServerOptions = {
               uri: 'https://'+process.env.DOMAIN+'/oauth/token',
@@ -879,7 +884,8 @@ app.post("/password", async (req, res, next) => {
                       try {
                         res.render("password", {
                         request: clientServerOptions, response: response, error: body.error, error_description: body.error_description, mfa_token: body.mfa_token});
-                        mfa_token = body.mfa_token;
+                        req.session.mfa_token = body.mfa_token;
+                        req.session.save();
                       } catch (err) {
                         console.log(err);
                         next(err);
@@ -891,12 +897,7 @@ app.post("/password", async (req, res, next) => {
                     req.session.refresh_token = body.refresh_token;
                     req.session.id_token = body.id_token;
                     req.session.client_id = req.body.client_id;
-
-                    req.session.test2 = "dfdf";
-                        console.log(req.session.test1);
-                        console.log(req.session.test2);
-                        console.log("Your IP Addresss is: " + req.socket.localAddress);
-                        req.session.save();
+                    req.session.save();
                     res.render("password", {
                     request: clientServerOptions, response: response, access_token: body.access_token, id_token: body.id_token, refresh_token: body.refresh_token});
 
@@ -1037,6 +1038,7 @@ app.post("/mfa", async (req, res, next) => {
                     req.session.access_token = body.access_token;
                     req.session.refresh_token = body.refresh_token;
                     req.session.id_token = body.id_token;
+                    req.session.save();
                     res.render("mfa", {
                     request: clientServerOptions, response: response, access_token: body.access_token, id_token: body.id_token, refresh_token: body.refresh_token});
 
@@ -1093,10 +1095,6 @@ app.post("/user_info", async (req, res, next) => {
 
 app.get("/call_api", async (req, res, next) => {
   try {
-    console.log(req.session.test1);
-    console.log(req.session.test2);
-    console.log("Your IP Addresss is: " + req.socket.localAddress);
-    req.session.save();
     res.render("call_api", { access_token: req.session.access_token});
   } catch (err) {
     next(err);
