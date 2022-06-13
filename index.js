@@ -1068,6 +1068,7 @@ app.get("/call_api", async (req, res, next) => {
   try {
     console.log(req.session.test1);
     console.log(req.session.test2);
+    req.session.save();
     res.render("call_api", { access_token: req.session.access_token});
   } catch (err) {
     next(err);
