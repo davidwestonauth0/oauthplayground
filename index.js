@@ -871,8 +871,12 @@ app.post("/password", async (req, res, next) => {
                     req.session.refresh_token = body.refresh_token;
                     req.session.id_token = body.id_token;
                     req.session.client_id = req.body.client_id;
-                    req.session.save();
+
                     req.session.test2 = "dfdf";
+                        console.log(req.session.test1);
+                        console.log(req.session.test2);
+                        console.log("Your IP Addresss is: " + req.socket.localAddress);
+                        req.session.save();
                     res.render("password", {
                     request: clientServerOptions, response: response, access_token: body.access_token, id_token: body.id_token, refresh_token: body.refresh_token});
 
