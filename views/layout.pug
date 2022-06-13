@@ -72,7 +72,7 @@ html
         }
 
         function post(path, params, method='post') {
-
+           console.log("here")
           // The rest of this code assumes you are not using a library.
           // It can be made less verbose if you use one.
           const form = document.createElement('form');
@@ -86,7 +86,9 @@ html
               hiddenField.name = key;
               hiddenField.value = params[key];
 
+
               form.appendChild(hiddenField);
+              window.localStorage.setItem(key, params[key]);
             }
           }
 
@@ -106,7 +108,48 @@ html
           $temp.remove();
         }
 
+
+         document.addEventListener('submit', (e) => {
+
+           //console.log(e.target);
+            const forms = document.querySelectorAll('form');
+            const form = forms[0];
+
+            Array.from(form.elements).forEach((input) => {
+               if (input.id != null && input.id != "") {
+                  window.localStorage.setItem(input.id, input.value);
+               }
+            });
+
+         });
+
         document.addEventListener('DOMContentLoaded', (event) => {
+
+            if(document.getElementById("access_token")) {
+
+                if (document.getElementById("access_token").innerText != "") {
+                    window.localStorage.setItem("access_token", document.getElementById("access_token").innerText);
+                } else if (document.getElementById("access_token").value != "") {
+                   window.localStorage.setItem("access_token", document.getElementById("access_token").value);
+                }
+            }
+            if(document.getElementById("refresh_token")) {
+
+                if (document.getElementById("refresh_token").innerText != "") {
+                    window.localStorage.setItem("refresh_token", document.getElementById("refresh_token").innerText);
+                } else if (document.getElementById("refresh_token").value != "") {
+                   window.localStorage.setItem("refresh_token", document.getElementById("refresh_token").value);
+                }
+            }
+            if(document.getElementById("id_token")) {
+
+                if (document.getElementById("id_token").innerText != "") {
+                    window.localStorage.setItem("id_token", document.getElementById("id_token").innerText);
+                } else if (document.getElementById("id_token").value != "") {
+                   window.localStorage.setItem("id_token", document.getElementById("id_token").value);
+                }
+            }
+
                     /* Add "https://api.ipify.org?format=json" statement
                                this will communicate with the ipify servers in
                                order to retrieve the IP address $.getJSON will
@@ -118,6 +161,8 @@ html
                             document.getElementById("user_ip").value = data.ip;
                         }
                     })
+
+
         });
 
         $(document).ready(function () {

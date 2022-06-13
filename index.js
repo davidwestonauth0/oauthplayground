@@ -12,6 +12,8 @@ const jwt = require("express-jwt");
 const jwksRsa = require("jwks-rsa");
 const jwt_decode = require("jwt-decode");
 const jwtAuthz = require("express-jwt-authz");
+const redis = require('ioredis');
+const connectRedis = require('connect-redis');
 
 
 const {
@@ -37,15 +39,46 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 const oneDay = 1000 * 60 * 60 * 24;
+//
+const RedisStore = require('connect-redis')(session);
+////Configure redis client
+//const redisClient = redis.createClient({
+//  socket: {
+//    host: 'redis-19832.c1.eu-west-1-3.ec2.cloud.redislabs.com',
+//    port: 19832,
+//      username: "default", // needs Redis >= 6
+//      password: "snAmtXQh1V0Q7n9ALiiALxR7lKy1WAlM",
+//  }
+//});
+//
+//redisClient.on('error', function (err) {
+//    console.log('Could not establish a connection with redis. ' + err);
+//});
+//redisClient.on('connect', function (err) {
+//    console.log('Connected to redis successfully');
+//});
 
-app.use(
-  session({
+const redisClient = redis.createClient({host:'redis-19832.c1.eu-west-1-3.ec2.cloud.redislabs.com',port:19832,username:'default',password:'snAmtXQh1V0Q7n9ALiiALxR7lKy1WAlM'});
+
+redisClient.on('connect',() => {
+    console.log('connected to redis successfully!');
+})
+
+redisClient.on('error',(error) => {
+    console.log('Redis connection error :', error);
+})
+
+app.use(session({
+    store: new RedisStore({ client: redisClient }),
     secret: SESSION_SECRET,
     resave: false,
-    cookie: { maxAge: oneDay },
-    saveUninitialized: true,
-  })
-);
+    saveUninitialized: false,
+    cookie: {
+        secure: false, // if true only transmit cookie over https
+        httpOnly: false, // if true prevent client side JS from reading the cookie
+        maxAge: 1000 * 60 * 10 // session max age in miliseconds
+    }
+}))
 
 
 
