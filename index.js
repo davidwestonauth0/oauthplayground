@@ -41,24 +41,11 @@ app.use(express.static(path.join(__dirname, "public")));
 const oneDay = 1000 * 60 * 60 * 24;
 //
 const RedisStore = require('connect-redis')(session);
-////Configure redis client
-//const redisClient = redis.createClient({
-//  socket: {
-//    host: 'redis-19832.c1.eu-west-1-3.ec2.cloud.redislabs.com',
-//    port: 19832,
-//      username: "default", // needs Redis >= 6
-//      password: "snAmtXQh1V0Q7n9ALiiALxR7lKy1WAlM",
-//  }
-//});
-//
-//redisClient.on('error', function (err) {
-//    console.log('Could not establish a connection with redis. ' + err);
-//});
-//redisClient.on('connect', function (err) {
-//    console.log('Connected to redis successfully');
-//});
 
-const redisClient = redis.createClient({host:'redis-19832.c1.eu-west-1-3.ec2.cloud.redislabs.com',port:19832,username:'default',password:'snAmtXQh1V0Q7n9ALiiALxR7lKy1WAlM'});
+const redisClient = redis.createClient({host: process.env.REDIS_HOST,
+                                        port: process.env.REDIS_PORT,
+                                        username: process.env.REDIS_HOST,
+                                        password:process.env.REDIS_PASSWORD});
 
 redisClient.on('connect',() => {
     console.log('connected to redis successfully!');
