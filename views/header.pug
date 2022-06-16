@@ -2,27 +2,24 @@ ul(class='navigation', role='navigation')
   li.logo
     a(href='/')
       img(src='/images/auth0.png')
-  li
+  li.dropdown
+    a oauth flows
+    .dropdown-content
       a(href='/authorization_code') authorization_code
-  li
       a(href='/authorization_code_pkce') authorization_code (PKCE)
-  li
       a(href='/implicit') implicit
-  li
-      a(href='/password') ROPG
-  li
+      a(href='/password') password (ROPG)
       a(href='/client_credentials') client_credentials
-  li
       a(href='/refresh_token') refresh_token
-  li
       a(href='/device_code') device_code
-  li
       a(href='/passwordless') passwordless
-  li
-      a(href='/mfa') mfa
-  li
-      a(href='/revoke') revoke
+      a(href='/revoke') revoke refresh_token
+      a(href='/register_client') register_client
+      if (mfa_token)
+        a(href='/mfa') mfa
+
   li.spacer
+
   li
       a(href='/call_api') Call API
   li

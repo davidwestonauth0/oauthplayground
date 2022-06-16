@@ -5,7 +5,7 @@ const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const path = require("path");
 const { createServer } = require("http");
-const { auth, requiresAuth } = require("express-openid-connect");
+const { auth, requiresAuth, attemptSilentLogin } = require("express-openid-connect");
 const axios = require("axios").default;
 const request = require('request');
 const jwt = require("express-jwt");
@@ -39,7 +39,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 const oneDay = 1000 * 60 * 60 * 24;
-//
+
 const RedisStore = require('connect-redis')(session);
 
 const redisClient = redis.createClient({host: process.env.REDIS_HOST,
@@ -67,6 +67,22 @@ app.use(session({
     }
 }))
 
+app.use(
+  auth({
+    secret: SESSION_SECRET,
+    authRequired: false,
+    auth0Logout: true,
+    baseURL: APP_URL,
+    authorizationParams: {
+      response_type: "code id_token",
+      audience: process.env.AUDIENCE,
+      prompt: "none",
+      redirect_uri: APP_URL+"/",
+      scope: "openid profile email",
+    },
+  })
+);
+
 
 
 app.use(function(req, res, next) {
@@ -77,6 +93,25 @@ app.use(function(req, res, next) {
 
 
 app.get("/", async (req, res, next) => {
+//   console.log("here");
+//   attemptSilentLogin();
+//   console.log(req.oidc.isAuthenticated());
+//   console.log(req);
+//  console.log(req.oidc);
+//  console.log(req.oidc.user);
+req.session.destroy();
+  try {
+    res.render("home", {
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+app.post("/", async (req, res, next) => {
+//   console.log("here");
+//  console.log(req.oidc);
+//  console.log(req.oidc.user);
   try {
     res.render("home", {
     });
@@ -117,7 +152,7 @@ app.get("/authorization_code", async (req, res, next) => {
 
       try {
         res.render("authorization_code", {
-        });
+        client_id: req.session.client_id, client_secret: req.session.client_secret});
       } catch (err) {
         console.log(err);
         next(err);
@@ -247,7 +282,7 @@ app.get("/authorization_code_pkce", async (req, res, next) => {
 
       try {
         res.render("authorization_code_pkce", {
-        });
+        client_id: req.session.client_id, client_secret: req.session.client_secret});
       } catch (err) {
         console.log(err);
         next(err);
@@ -256,7 +291,7 @@ app.get("/authorization_code_pkce", async (req, res, next) => {
 });
 
 app.post("/authorization_code_pkce", async (req, res, next) => {
-
+        console.log(req.oidc);
       if (req.body.id_token || req.body.access_token || req.body.refresh_token) {
                 req.session.access_token = req.body.access_token;
                 req.session.refresh_token = req.body.refresh_token;
@@ -491,6 +526,14 @@ app.post("/device_code", async (req, res, next) => {
       }
 });
 
+app.get("/register_client", async (req, res, next) => {
+  try {
+    res.render("register_client", {});
+  } catch (err) {
+    console.log(err);
+    next(err);
+  }
+});
 
 app.get("/revoke", async (req, res, next) => {
   try {
@@ -500,6 +543,49 @@ app.get("/revoke", async (req, res, next) => {
     console.log(err);
     next(err);
   }
+});
+
+app.post("/register_client", async (req, res, next) => {
+      var clientServerOptions = {
+         uri: 'https://'+process.env.DOMAIN+'/oidc/register',
+           json: {
+             client_name: req.body.client_name,
+             redirect_uris: req.body.redirect_uris.split(','),
+             token_endpoint_auth_method: req.body.token_endpoint_auth_method
+           },
+         method: 'POST',
+         headers: {
+             'Content-Type': 'application/json'
+         }
+      }
+
+      request(clientServerOptions, function (error, response) {
+
+            const body = response.body;
+            if (response.statusCode != 201) {
+                  try {
+                    res.render("register_client", {
+                    request: clientServerOptions, response: response, error: body.error, error_description: body.message});
+                  } catch (err) {
+                    console.log(err);
+                    next(err);
+                  }
+            } else {
+
+              try {
+                req.session.client_id = body.client_id;
+                req.session.client_secret = body.client_secret;
+                req.session.save();
+                res.render("register_client", {
+                request: clientServerOptions, response: response, client_id: body.client_id, client_secret: body.client_secret});
+
+              } catch (err) {
+                console.log(err);
+                next(err);
+              }
+          }
+          //return;
+      });
 });
 
 
@@ -613,7 +699,7 @@ app.post("/refresh_token", async (req, res, next) => {
 app.get("/client_credentials", async (req, res, next) => {
   try {
     res.render("client_credentials", {
-    });
+    client_id: req.session.client_id, client_secret: req.session.client_secret});
   } catch (err) {
     console.log(err);
     next(err);
@@ -949,10 +1035,16 @@ app.post("/mfa", async (req, res, next) => {
 
                   try {
                       const body = JSON.parse(response.body);
-                      const authenticator_id = body[0].id;
-                      const authenticator_type = body[0].authenticator_type;
-                    res.render("mfa", {
-                    request: clientServerOptions, response: response, authenticator_id: authenticator_id, challenge_type: authenticator_type, mfa_token: req.body.mfa_token});
+                      if (body.length == 0) {
+                        // TODO chek available authenticator types
+                        res.render("mfa", {
+                        request: clientServerOptions, response: response, mfa_token: req.body.mfa_token});
+                      } else {
+                        const authenticator_id = body[0].id;
+                        const authenticator_type = body[0].authenticator_type;
+                        res.render("mfa", {
+                        request: clientServerOptions, response: response, authenticator_id: authenticator_id, challenge_type: authenticator_type, mfa_token: req.body.mfa_token});
+                      }
                   } catch (err) {
                     console.log(err);
                     next(err);
@@ -960,6 +1052,46 @@ app.post("/mfa", async (req, res, next) => {
               }
                   //return;
               });
+   } else if(req.body.phone_number) {
+          var clientServerOptions = {
+                  uri: 'https://'+process.env.DOMAIN+'/mfa/associate',
+                  method: 'POST',
+                  headers: {
+                      'Authorization': 'Bearer ' + req.body.mfa_token,
+                      'Content-Type': 'application/json'
+                  },
+                  json: {
+                      authenticator_types: req.body.client_secret,
+                      oob_channels: req.body.oob_channels,
+                      phone_number: req.body.phone_number
+                  }
+              }
+
+              request(clientServerOptions, function (error, response) {
+                const body = response.body;
+                if (response.statusCode != 200) {
+
+                      try {
+
+                        res.render("mfa", {
+                        request: clientServerOptions, response: response, error: body.error, error_description: body.error_description, mfa_token: req.body.mfa_token, authenticator_id: req.body.authenticator_id});
+                      } catch (err) {
+                        console.log(err);
+                        next(err);
+                      }
+                } else {
+
+                  try {
+                    res.render("mfa", {
+                    request: clientServerOptions, response: response, authenticator_id: req.body.authenticator_id, mfa_token: req.body.mfa_token, oob_code: body.oob_code});
+                  } catch (err) {
+                    console.log(err);
+                    next(err);
+                  }
+              }
+                  //return;
+              });
+
    } else if(req.body.authenticator_id && !req.body.oob_code) {
 
           var clientServerOptions = {

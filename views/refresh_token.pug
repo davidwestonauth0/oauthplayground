@@ -63,7 +63,8 @@ block content
                                     p(class="required tooltip", data-toggle='tooltip', data-placement='right', title='Your applications client ID') client_id:
                                 td
                                   select(name="client_id" id="client_id" style="width:400px")
-                                    option(value=client_id) #{client_id}
+                                    if client_id
+                                        option(value=client_id) #{client_id}
                                     option(value=process.env.CLIENT_ID) WebApp #{process.env.CLIENT_ID}
                                     option(value=process.env.CLIENT_ID_SPA) SPA #{process.env.CLIENT_ID_SPA}
                                     option(value=process.env.CLIENT_ID_NATIVE) Native #{process.env.CLIENT_ID_NATIVE}

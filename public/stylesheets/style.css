@@ -97,7 +97,7 @@ color: red;
 }
 
 .tooltip:hover {
-background-color: #3885ff;
+background-color: #d0d2d3;
 cursor: pointer;
 }
 
@@ -160,14 +160,15 @@ cursor: pointer;
 
 .dropdown {
   position: relative;
+  cursor: pointer;
   display: inline-block;
 }
 
 .dropdown-content {
   display: none;
   position: absolute;
-  background-color: #f9f9f9;
-  min-width: 160px;
+  background-color: #333c4d;
+  min-width: 250px;
   box-shadow: 0px 3px 12px rgba(0, 0, 0, 0.12),
     0px 3px 8px rgba(0, 0, 0, 0.0379303);
   border-radius: 3px;
@@ -206,7 +207,7 @@ cursor: pointer;
 
 /* Change color of dropdown links on hover */
 .dropdown-content a:hover {
-  background-color: #f1f1f1;
+  background-color: #d0d2d3;
 }
 
 /* Show the dropdown menu on hover */

@@ -63,7 +63,10 @@ block content
                                 td
                                     p(class="required tooltip", data-toggle='tooltip', data-placement='right', title='Your applications ID') client_id:
                                 td
-                                    input(type="text" name="client_id" id="client_id" required style="width:400px" value=process.env.CLIENT_ID)
+                                    if client_id
+                                        input(type="text" required name="client_id" id="client_id" style="width:400px" value=client_id)
+                                    else
+                                        input(type="text" required name="client_id" id="client_id" style="width:400px" value=process.env.CLIENT_ID)
                                     input(type="hidden" name="domain" id="domain" style="width:400px" value=process.env.DOMAIN)
                               tr
                                 td
