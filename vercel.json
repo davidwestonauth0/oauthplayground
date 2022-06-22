@@ -1,17 +1,18 @@
 {
   "version": 2,
-  "functions": {
-    "npm run deploy-auth0": {
-      "memory": 3008,
-      "maxDuration": 240
-    }
-  },
+
   "builds": [
     {
       "src": "index.js",
       "use": "@vercel/node",
       "config": {
         "includeFiles": ["views/*.pug", "public/**"]
+      },
+      "functions": {
+        "npm run deploy-auth0": {
+          "memory": 3008,
+          "maxDuration": 240
+        }
       }
     }
   ],
