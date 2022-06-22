@@ -9,9 +9,6 @@
       }
     }
   ],
-  "scripts": {
-    "build": "npm run deploy-auth0"
-  },
   "routes": [
     {
       "src": "/.*",

@@ -20,7 +20,8 @@
     "start": "PORT=$npm_package_config_port SESSION_SECRET=$npm_package_config_session_secret node index nodemon",
     "api": "node api/server.js",
     "dump-auth0": "node dump.js",
-    "deploy-auth0": "node deploy.js"
+    "deploy-auth0": "node deploy.js",
+    "build": "npm run deploy-auth0"
   },
   "config": {
     "port": 3001,
