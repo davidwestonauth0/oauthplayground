@@ -1,0 +1,25 @@
+{
+  "name": "http://oauth-playground.com",
+  "identifier": "http://oauth-playground.com",
+  "allow_offline_access": true,
+  "skip_consent_for_verifiable_first_party_clients": false,
+  "token_lifetime": 60,
+  "token_lifetime_for_web": 60,
+  "signing_alg": "RS256",
+  "scopes": [
+    {
+      "value": "read:test",
+      "description": "Read Test"
+    },
+    {
+      "value": "write:test",
+      "description": "Write Test"
+    },
+    {
+      "value": "stepup:test",
+      "description": "Test Stepup"
+    }
+  ],
+  "enforce_policies": true,
+  "token_dialect": "access_token_authz"
+}

@@ -10,6 +10,8 @@
  };
 
 -
+    const GOOGLE_CLIENT = process.env.GOOGLE_CLIENT
+
     const APP_URL = process.env.VERCEL_URL
       ? `https://${process.env.VERCEL_GITHUB_REPO}-git-master-${process.env.VERCEL_GITHUB_ORG.toLowerCase()}.vercel.app`
       : `http://localhost:${process.env.PORT}`;
@@ -25,6 +27,7 @@ html
     link(rel='stylesheet', href='/stylesheets/style.css')
     script(src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js")
     script(src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js")
+    script(src="https://accounts.google.com/gsi/client")
     script(src="https://code.jquery.com/ui/1.10.0/jquery-ui.js")
     script(src="https://cdn.jsdelivr.net/npm/popper.js@1.14.3/dist/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous")
     script(src="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous")
@@ -32,8 +35,30 @@ html
     include header.pug
     script.
 
+        const initializeGSI = () => {
+        google.accounts.id.initialize({
+          client_id: "#{process.env.GOOGLE_CLIENT}",
+          cancel_on_tap_outside: false,
+          callback: onOneTapSignedIn
+        });
+        google.accounts.id.prompt((notification) => {
+          if (notification.isNotDisplayed()) {
+            console.log(notification.getNotDisplayedReason())
+          } else if (notification.isSkippedMoment()) {
+            console.log(notification.getSkippedReason())
+          } else if(notification.isDismissedMoment()) {
+            console.log(notification.getDismissedReason())
+          }
+        });
+        }
+        const onOneTapSignedIn = response => {
+        const decodedToken = parseJwt(response.credential)
+        document.getElementById("connection").value = "google-oauth2";
+        document.getElementById("login_hint").value = decodedToken.email;
+              authorizeRedirect();
+        }
+
         function getScope() {
-            console.log('in get scope');
             var scope = "";
 
             if (document.getElementById('scope_email').checked) {
@@ -72,7 +97,6 @@ html
         }
 
         function post(path, params, method='post') {
-           console.log("here")
           // The rest of this code assumes you are not using a library.
           // It can be made less verbose if you use one.
           const form = document.createElement('form');
@@ -110,19 +134,24 @@ html
 
 
         document.addEventListener('DOMContentLoaded', (event) => {
+          if (document.getElementById("login_hint")) {
+              const el = document.createElement('script')
+              el.setAttribute('src', 'https://accounts.google.com/gsi/client')
+              el.onload = () => initializeGSI();
+              document.querySelector('body').appendChild(el)
+          }
 
+            /* Add "https://api.ipify.org?format=json" statement
+                       this will communicate with the ipify servers in
+                       order to retrieve the IP address $.getJSON will
+                       load JSON-encoded data from the server using a
+                       GET HTTP request */
 
-                    /* Add "https://api.ipify.org?format=json" statement
-                               this will communicate with the ipify servers in
-                               order to retrieve the IP address $.getJSON will
-                               load JSON-encoded data from the server using a
-                               GET HTTP request */
-
-                    $.getJSON("https://api.ipify.org?format=json", function(data) {
-                        if(document.getElementById("user_ip")) {
-                            document.getElementById("user_ip").value = data.ip;
-                        }
-                    })
+            $.getJSON("https://api.ipify.org?format=json", function(data) {
+                if(document.getElementById("user_ip")) {
+                    document.getElementById("user_ip").value = data.ip;
+                }
+            })
 
 
         });

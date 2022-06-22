@@ -12,18 +12,21 @@ ul(class='navigation', role='navigation')
       a(href='/client_credentials') client_credentials
       a(href='/refresh_token') refresh_token
       a(href='/device_code') device_code
-      a(href='/passwordless') passwordless
+      a(href='/passwordless') passwordless (backend)
       a(href='/revoke') revoke refresh_token
-      a(href='/register_client') register_client
+      a(href='/register_client') Dynamic Application (Client) Registration
+      a(href='/database_signup') Database Signup
+      a(href='/database_password_reset') Database Change Password
       if (mfa_token)
         a(href='/mfa') mfa
-
-  li.spacer
-
   li
       a(href='/call_api') Call API
   li
       a(href='/user_info') user_info
   li
       a(href='/logmeout') logout
+
+  li.spacer
+
+
 

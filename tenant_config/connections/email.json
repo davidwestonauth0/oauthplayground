@@ -1,0 +1,30 @@
+{
+  "options": {
+    "name": "email",
+    "totp": {
+      "length": 6,
+      "time_step": 180
+    },
+    "email": {
+      "body": "./email.html",
+      "from": "{{ application.name }} <root@auth0.com>",
+      "syntax": "liquid",
+      "subject": "Welcome to {{ application.name }}"
+    },
+    "disable_signup": false,
+    "brute_force_protection": true
+  },
+  "strategy": "email",
+  "name": "email",
+  "is_domain_connection": false,
+  "enabled_clients": [
+    "API Explorer Application",
+    "Auth0 Management API (Test Application)",
+    "Oauth Playgound Native",
+    "Oauth Playground",
+    "Oauth Playground Passwordless",
+    "Oauth Playground SPA",
+    "Oauthplayground Deploy",
+    "Shopify"
+  ]
+}

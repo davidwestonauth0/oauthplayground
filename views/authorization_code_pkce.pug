@@ -304,6 +304,40 @@ block content
               return window.crypto.subtle.digest("SHA-256", data);
             }
 
+            function authorizeRedirect() {
+                      var url = 'https://'+document.getElementById('domain').value+'/authorize?response_mode='+document.getElementById('response_mode').value+'&response_type='+document.getElementById('response_type').value+'&code_challenge='+document.getElementById('code_challenge').value+'&code_challenge_method='+document.getElementById('code_challenge_method').value+'&client_id='+document.getElementById('client_id').value+'&redirect_uri='+document.getElementById('redirect_uri').value+'&audience='+document.getElementById('audience').value+'&scope='+getScope()+'&state='+document.getElementById('state').value+'&nonce='+document.getElementById('nonce').value
+                      if (document.getElementById('connection').value !="") {
+                          url = url + '&connection='+document.getElementById('connection').value
+                      }
+                      if (document.getElementById('prompt').value !="") {
+                          url = url + '&prompt='+document.getElementById('prompt').value
+                      }
+                      if (document.getElementById('organization').value !="") {
+                          url = url + '&organization='+document.getElementById('organization').value
+                      }
+                      if (document.getElementById('max_age').value !="") {
+                          url = url + '&max_age='+document.getElementById('max_age').value
+                      }
+                      if (document.getElementById('login_hint').value !="") {
+                          url = url + '&login_hint='+document.getElementById('login_hint').value
+                      }
+                      if (document.getElementById('screen_hint').value !="") {
+                        url = url + '&screen_hint='+document.getElementById('screen_hint').value
+                      }
+                      if (document.getElementById('ui_locales').value !="") {
+                          url = url + '&ui_locales='+document.getElementById('ui_locales').value
+                      }
+                      if (document.getElementById('custom_params').value !="") {
+                        var params = document.getElementById('custom_params').value.split(" ");
+                        for (var i = 0; i < params.length; i++) {
+                            url = url + '&'+params[i];
+                        }
+                      }
+                        console.log(url);
+                       window.localStorage.setItem('request_url', url);
+                       location.href = url;
+            }
+
             function base64urlencode(a) {
               var str = "";
               var bytes = new Uint8Array(a);
@@ -376,39 +410,7 @@ block content
                   xhr.send(params);
 
                   } else {
-
-                      var url = 'https://'+document.getElementById('domain').value+'/authorize?response_mode='+document.getElementById('response_mode').value+'&response_type='+document.getElementById('response_type').value+'&code_challenge='+document.getElementById('code_challenge').value+'&code_challenge_method='+document.getElementById('code_challenge_method').value+'&client_id='+document.getElementById('client_id').value+'&redirect_uri='+document.getElementById('redirect_uri').value+'&audience='+document.getElementById('audience').value+'&scope='+getScope()+'&state='+document.getElementById('state').value+'&nonce='+document.getElementById('nonce').value
-                      if (document.getElementById('connection').value !="") {
-                          url = url + '&connection='+document.getElementById('connection').value
-                      }
-                      if (document.getElementById('prompt').value !="") {
-                          url = url + '&prompt='+document.getElementById('prompt').value
-                      }
-                      if (document.getElementById('organization').value !="") {
-                          url = url + '&organization='+document.getElementById('organization').value
-                      }
-                      if (document.getElementById('max_age').value !="") {
-                          url = url + '&max_age='+document.getElementById('max_age').value
-                      }
-                      if (document.getElementById('login_hint').value !="") {
-                          url = url + '&login_hint='+document.getElementById('login_hint').value
-                      }
-                      if (document.getElementById('screen_hint').value !="") {
-                        url = url + '&screen_hint='+document.getElementById('screen_hint').value
-                      }
-                      if (document.getElementById('ui_locales').value !="") {
-                          url = url + '&ui_locales='+document.getElementById('ui_locales').value
-                      }
-                      if (document.getElementById('custom_params').value !="") {
-                        var params = document.getElementById('custom_params').value.split(" ");
-                        for (var i = 0; i < params.length; i++) {
-                            url = url + '&'+params[i];
-                        }
-                      }
-
-                       window.localStorage.setItem('request_url', url);
-                       location.href = url;
-
+                    authorizeRedirect();
                   }
 
                  // Prevent the default form submit

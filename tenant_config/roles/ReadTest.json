@@ -1,0 +1,14 @@
+{
+  "name": "ReadTest",
+  "description": "Read Test",
+  "permissions": [
+    {
+      "permission_name": "read:test",
+      "resource_server_identifier": "http://oauth-playground.com"
+    },
+    {
+      "permission_name": "stepup:test",
+      "resource_server_identifier": "http://oauth-playground.com"
+    }
+  ]
+}

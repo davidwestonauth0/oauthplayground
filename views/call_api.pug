@@ -70,7 +70,8 @@ block content
 
                 if data
                     h2 Data returned from API
-                    p data #{data}
+                    pre
+                        code(id="data" class="prettyprint" style="word-break: break-all; white-space: normal;") #{data}
 
     table(style='width:100%;table-layout:fixed', border='0')
           tr

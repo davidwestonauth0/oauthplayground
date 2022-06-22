@@ -1,0 +1,7 @@
+{
+  "enabled": true,
+  "script": "./update metadata.js",
+  "name": "update metadata",
+  "order": 5,
+  "stage": "login_success"
+}

@@ -886,6 +886,139 @@ app.post("/passwordless", async (req, res, next) => {
 
 
 
+app.get("/database_password_reset", async (req, res, next) => {
+  try {
+    res.render("database_password_reset", {
+    });
+  } catch (err) {
+    console.log(err);
+    next(err);
+  }
+});
+
+app.post("/database_password_reset", async (req, res, next) => {
+
+
+          var clientServerOptions = {
+              uri: 'https://'+process.env.DOMAIN+'/dbconnections/change_password',
+                json: {
+                  client_id: req.body.client_id,
+                  email:req.body.email,
+                  connection:req.body.connection,
+                },
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json'
+              }
+          }
+
+
+          request(clientServerOptions, function (error, response) {
+                console.log(response.body);
+                const body = response.body;
+
+                if (response.statusCode != 200) {
+                      try {
+                        res.render("database_password_reset", {
+                        request: clientServerOptions, response: response, error: body.code, error_description: body.description});
+
+                      } catch (err) {
+                        console.log(err);
+                        next(err);
+                      }
+                } else {
+
+                  try {
+
+                    res.render("database_password_reset", {
+                    request: clientServerOptions, response: response, user_id: body});
+
+                  } catch (err) {
+                    console.log(err);
+                    next(err);
+                  }
+              }
+              //return;
+          });
+});
+
+app.get("/database_signup", async (req, res, next) => {
+  try {
+    res.render("database_signup", {
+    });
+  } catch (err) {
+    console.log(err);
+    next(err);
+  }
+});
+
+app.post("/database_signup", async (req, res, next) => {
+
+
+          var clientServerOptions = {
+              uri: 'https://'+process.env.DOMAIN+'/dbconnections/signup',
+                json: {
+                  client_id: req.body.client_id,
+                  password: req.body.password,
+                  email:req.body.email,
+                  connection:req.body.connection,
+                },
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json'
+              }
+          }
+           if (req.body.username!="") {
+            clientServerOptions.json.username = req.body.username;
+           }
+           if (req.body.given_name!="") {
+            clientServerOptions.json.given_name = req.body.given_name;
+           }
+           if (req.body.family_name!="") {
+            clientServerOptions.json.family_name = req.body.family_name;
+           }
+           if (req.body.name!="") {
+            clientServerOptions.json.name = req.body.name;
+           }
+           if (req.body.nickname!="") {
+            clientServerOptions.json.nickname = req.body.nickname;
+           }
+           if (req.body.picture!="") {
+            clientServerOptions.json.picture = req.body.picture;
+           }
+           if (req.body.user_metadata!="") {
+            clientServerOptions.json.user_metadata = JSON.parse(req.body.user_metadata);
+           }
+
+          request(clientServerOptions, function (error, response) {
+                console.log(response.body);
+                const body = response.body;
+
+                if (response.statusCode != 200) {
+                      try {
+                        res.render("database_signup", {
+                        request: clientServerOptions, response: response, error: body.code, error_description: body.description});
+
+                      } catch (err) {
+                        console.log(err);
+                        next(err);
+                      }
+                } else {
+
+                  try {
+
+                    res.render("database_signup", {
+                    request: clientServerOptions, response: response, user_id: body._id});
+
+                  } catch (err) {
+                    console.log(err);
+                    next(err);
+                  }
+              }
+              //return;
+          });
+});
+
 
 app.get("/password", async (req, res, next) => {
   try {

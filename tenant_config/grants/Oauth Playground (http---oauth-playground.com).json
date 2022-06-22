@@ -1,0 +1,7 @@
+{
+  "client_id": "Oauth Playground",
+  "audience": "http://oauth-playground.com",
+  "scope": [
+    "read:test"
+  ]
+}

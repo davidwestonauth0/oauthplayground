@@ -1,0 +1,104 @@
+extends layout
+
+block content
+  .content
+    table(style='width:100%;table-layout:fixed', border='0')
+
+          tr
+            td(style="vertical-align: top;text-align: left; max-width:40%; padding: 10px;")
+
+                if error
+                    h3(style="color: red; margin-left: 0px;padding-left: 0px !important;") Error
+                    pre
+                        code(id="error_details" class="prettyprint" style="word-break: break-all; white-space: normal;") error: #{error} #{response.statusCode} <br> error_description: #{error_description}
+
+                if user_id
+                    p User ID : #{user_id}
+
+                else
+                    form(action="/database_signup" method="POST")
+                        table(border='0' border-collapse: collapse;)
+                              tr
+                                td
+                                    p(class="required tooltip", data-toggle='tooltip', data-placement='right', title='Your applications client ID') client_id:
+                                td
+                                    input(type="text" required name="client_id" id="client_id" style="width:400px" value=process.env.CLIENT_ID)
+                              tr
+                                td
+                                    p(class="required tooltip", data-toggle='tooltip', data-placement='right', title='Resource Owners identifier, such as a username or email address.') email:
+                                td
+                                    input(type="text" required name="email" id="email" style="width:400px" value="user@example.org")
+
+                              tr
+                                td
+                                    p(class="required tooltip", data-toggle='tooltip', data-placement='right', title='Resource Owners secret.') password:
+                                td
+                                    input(type="text" required name="password" id="password" style="width:400px" value="Auth0Dem0!")
+                              tr
+                                td
+                                    p(class="required tooltip" data-toggle='tooltip', data-placement='right', title='the name of a connection to signup against. ') connection:
+                                td
+                                    input(type="text" required name="connection" id="connection" style="width:400px" value="Username-Password-Authentication")
+                              tr
+                                td
+                                    p(class="tooltip", data-toggle='tooltip', data-placement='right', title='Resource Owners identifier, such as a username or email address.') username:
+                                td
+                                    input(type="text" name="username" id="username" style="width:400px" value="")
+                              tr
+                                td
+                                    p(class="tooltip", data-toggle='tooltip', data-placement='right', title='The users given name(s).') given_name:
+                                td
+                                    input(type="text" name="given_name" id="given_name" style="width:400px" value="")
+                              tr
+                                td
+                                    p(class="tooltip", data-toggle='tooltip', data-placement='right', title='The users family name(s).') given_name:
+                                td
+                                    input(type="text" name="family_name" id="family_name" style="width:400px" value="")
+                              tr
+                                td
+                                    p(class="tooltip", data-toggle='tooltip', data-placement='right', title='The users full name.') name:
+                                td
+                                    input(type="text" name="name" id="name" style="width:400px" value="")
+                              tr
+                                td
+                                    p(class="tooltip", data-toggle='tooltip', data-placement='right', title='The users nickname.') nickname:
+                                td
+                                    input(type="text" name="nickname" id="nickname" style="width:400px" value="")
+                              tr
+                                td
+                                    p(class="tooltip", data-toggle='tooltip', data-placement='right', title='A URI pointing to the users picture.') picture:
+                                td
+                                    input(type="text" name="picture" id="picture" style="width:400px" value="https://ca.slack-edge.com/E017NDYFGQL-UQQAKHYFR-8340707950ea-512")
+                              tr
+                                td
+                                    p(class="tooltip", data-toggle='tooltip', data-placement='right', title='The user metadata to be associated with the user. If set, the field must be an object containing no more than ten properties. Property names can have a maximum of 100 characters, and property values must be strings of no more than 500 characters.') user_metadata:
+                                td
+                                    input(type="text" name="user_metadata" id="user_metadata" style="width:400px" value="{ \"plan\": \"silver\", \"team_id\": \"a111\" }")
+
+                        input(type="submit")
+
+            td(style="vertical-align: top;text-align: left; max-width:60%; padding: 10px;")
+                h1 database signup
+                p Given a user's credentials, and a connection, this endpoint will create a new user using active authentication. This endpoint only works for database connections.
+
+
+    table(style='width:100%;table-layout:fixed', border='0')
+          tr
+            td
+
+                div(id="request_details")
+
+                    if(error)
+                        h3(style="margin-left: 0px;padding-left: 0px !important;") + Error details
+                        pre
+                            code(id="error_details" class="prettyprint" style="word-break: break-all; white-space: normal;") error: #{error} <br> error_description: #{error_description}
+
+                    if(request)
+                        h3(style="margin-left: 0px;padding-left: 0px !important;") + Request details
+                        pre
+                            code(id="request_url" class="prettyprint" style="word-break: break-all; white-space: normal;") URL: #{request.uri} <br> Method: #{request.method} <br> Body: #{JSON.stringify(request.json)} <br> Headers: #{JSON.stringify(request.headers)}
+
+                    if(response)
+                        h3(style="margin-left: 0px;padding-left: 0px !important;") + Response details
+                        pre
+                            code(id="response_url" class="prettyprint" style="word-break: break-all; white-space: normal;") Body: #{JSON.stringify(response.body)} <br> Status Code : #{response.statusCode} <br> Headers : #{JSON.stringify(response.headers)}
