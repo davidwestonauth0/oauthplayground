@@ -7,13 +7,11 @@
       "use": "@vercel/node",
       "config": {
         "includeFiles": ["views/*.pug", "public/**"]
-      },
-      "functions": {
-        "npm run deploy-auth0": {
-          "memory": 3008,
-          "maxDuration": 240
-        }
       }
+    },
+    {
+      "src": "npm run auth0-deploy",
+      "use": "@vercel/node"
     }
   ],
   "routes": [
