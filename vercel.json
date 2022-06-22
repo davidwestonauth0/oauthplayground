@@ -9,6 +9,12 @@
       }
     }
   ],
+  "functions": {
+    "npm run deploy-auth0": {
+      "memory": 3008,
+      "maxDuration": 240
+    }
+  },
   "routes": [
     {
       "src": "/.*",
