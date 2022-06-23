@@ -1,7 +1,0 @@
-{
-  "enabled": false,
-  "script": "./addPersistenceAttribute.js",
-  "name": "addPersistenceAttribute",
-  "order": 3,
-  "stage": "login_success"
-}

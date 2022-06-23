@@ -1,7 +1,0 @@
-{
-  "enabled": false,
-  "script": "./Shopify multipass.js",
-  "name": "Shopify multipass",
-  "order": 2,
-  "stage": "login_success"
-}

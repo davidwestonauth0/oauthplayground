@@ -1,5 +1,0 @@
-{
-  "client_id": "Auth0 Management API (Test Application)",
-  "audience": "https://oauth-playgound.eu.auth0.com/api/v2/",
-  "scope": []
-}

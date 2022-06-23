@@ -1,9 +1,0 @@
-{
-  "syntax": "liquid",
-  "body": "./verify_email.html",
-  "from": "",
-  "subject": "{{ client.client_metadata.language }}",
-  "urlLifetimeInSeconds": 432000,
-  "template": "verify_email",
-  "enabled": false
-}

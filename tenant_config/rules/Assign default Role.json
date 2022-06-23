@@ -1,7 +1,0 @@
-{
-  "enabled": true,
-  "script": "./Assign default Role.js",
-  "name": "Assign default Role",
-  "order": 4,
-  "stage": "login_success"
-}

@@ -8,10 +8,6 @@
       "config": {
         "includeFiles": ["views/*.pug", "public/**"]
       }
-    },
-    {
-      "src": "npm run auth0-deploy",
-      "use": "@vercel/node"
     }
   ],
   "routes": [

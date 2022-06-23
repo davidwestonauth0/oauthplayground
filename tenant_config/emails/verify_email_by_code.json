@@ -1,8 +1,0 @@
-{
-  "syntax": "liquid",
-  "body": "./verify_email_by_code.html",
-  "from": "",
-  "subject": "{{ client.client_metadata.language }}",
-  "template": "verify_email_by_code",
-  "enabled": true
-}
