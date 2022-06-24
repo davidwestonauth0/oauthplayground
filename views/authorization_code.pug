@@ -69,6 +69,7 @@ block content
                                         input(type="text" required name="client_id" id="client_id" style="width:400px" value=client_id)
                                     else
                                         input(type="text" required name="client_id" id="client_id" style="width:400px" value=process.env.CLIENT_ID)
+
                                     input(type="hidden" name="domain" id="domain" style="width:400px" value=process.env.DOMAIN)
                               tr
                                 td
@@ -106,7 +107,9 @@ block content
                                     if client_id
                                         input(type="text" required name="client_id" id="client_id" style="width:400px" value=client_id)
                                     else
-                                        input(type="text" required name="client_id" id="client_id" style="width:400px" value=process.env.CLIENT_ID)
+                                        select(name="client_id" required id="client_id" style="width:400px")
+                                          option(value=process.env.CLIENT_ID) #{process.env.CLIENT_ID} (New UL)
+                                          option(value=process.env.CLIENT_ID_PASSWORDLESS) #{process.env.CLIENT_ID_PASSWORDLESS} (Classic with Passwordless)
                                     input(type="hidden" name="domain" id="domain" style="width:400px" value=process.env.DOMAIN)
                               tr
                                 td
@@ -290,6 +293,8 @@ block content
                     }
                   }
                    window.localStorage.setItem('request_url', url);
+                  window.localStorage.setItem('client_id', document.getElementById('client_id').value);
+                  window.localStorage.setItem('redirect_uri', document.getElementById('redirect_uri').value);
                    location.href = url;
             }
 
@@ -321,6 +326,12 @@ block content
                   if ('code' in params) {
                     if(document.getElementById('request_url')) {
                         document.getElementById('request_url').innerHTML = window.localStorage.getItem('request_url');
+                    }
+                    if(document.getElementById('client_id') && localStorage.getItem("client_id") != null) {
+                        document.getElementById('client_id').value = window.localStorage.getItem('client_id');
+                    }
+                    if(document.getElementById('redirect_uri') && localStorage.getItem("redirect_uri") != null) {
+                        document.getElementById('redirect_uri').value = window.localStorage.getItem('redirect_uri');
                     }
                   }
                 }

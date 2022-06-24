@@ -189,6 +189,7 @@ app.post("/authorization_code", async (req, res, next) => {
               next(err);
             }
       } else if (req.body.code && !req.body.client_secret) {
+
             try {
           res.render("authorization_code", {
           request: "TBC", response: req, code: req.body.code});
@@ -197,6 +198,7 @@ app.post("/authorization_code", async (req, res, next) => {
               next(err);
             }
       } else if (req.body.client_secret) {
+
           var clientServerOptions = {
               uri: 'https://'+process.env.DOMAIN+'/oauth/token',
                 form: {
@@ -211,16 +213,31 @@ app.post("/authorization_code", async (req, res, next) => {
                   'Content-Type': 'application/x-www-form-urlencoded'
               }
           }
+          if (clientServerOptions.form.client_id == process.env.CLIENT_ID_PASSWORDLESS) {
+            delete clientServerOptions.form.client_secret;
+          }
           request(clientServerOptions, function (error, response) {
                 const body = JSON.parse(response.body);
+                console.log(body);
               try {
-                req.session.access_token = body.access_token;
-                req.session.refresh_token = body.refresh_token;
-                req.session.id_token = body.id_token;
-                req.session.client_id = req.body.client_id;
-                req.session.save();
-                res.render("authorization_code", {
-                request: clientServerOptions, response: response, access_token: body.access_token, id_token: body.id_token, refresh_token: body.refresh_token});
+
+                if (response.statusCode != 200) {
+                      try {
+                        res.render("authorization_code", {
+                        request: clientServerOptions, response: response, error: body.error, error_description: body.error_description, client_id: req.body.client_id, redirect_uri: req.body.redirect_uri});
+                      } catch (err) {
+                        console.log(err);
+                        next(err);
+                      }
+                } else {
+                    req.session.access_token = body.access_token;
+                    req.session.refresh_token = body.refresh_token;
+                    req.session.id_token = body.id_token;
+                    req.session.client_id = req.body.client_id;
+                    req.session.save();
+                    res.render("authorization_code", {
+                    request: clientServerOptions, response: response, access_token: body.access_token, id_token: body.id_token, refresh_token: body.refresh_token});
+                }
 
               } catch (err) {
                 console.log(err);
@@ -291,7 +308,7 @@ app.get("/authorization_code_pkce", async (req, res, next) => {
 });
 
 app.post("/authorization_code_pkce", async (req, res, next) => {
-        console.log(req.oidc);
+
       if (req.body.id_token || req.body.access_token || req.body.refresh_token) {
                 req.session.access_token = req.body.access_token;
                 req.session.refresh_token = req.body.refresh_token;
@@ -319,6 +336,8 @@ app.post("/authorization_code_pkce", async (req, res, next) => {
             next(err);
           }
       } else if(req.body.code) {
+      console.log("here");
+      console.log(req.body);
           try {
         res.render("authorization_code_pkce", {
         request: "TBC", response: req, code: req.body.code});

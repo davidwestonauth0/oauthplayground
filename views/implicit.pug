@@ -66,7 +66,9 @@ block content
                                     if client_id
                                         input(type="text" required name="client_id" id="client_id" style="width:400px" value=client_id)
                                     else
-                                        input(type="text" required name="client_id" id="client_id" style="width:400px" value=process.env.CLIENT_ID)
+                                        select(name="client_id" required id="client_id" style="width:400px")
+                                          option(value=process.env.CLIENT_ID_SPA) #{process.env.CLIENT_ID} (New UL)
+                                          option(value=process.env.CLIENT_ID_PASSWORDLESS) #{process.env.CLIENT_ID_PASSWORDLESS} (Classic with Passwordless)
                                     input(type="hidden" name="domain" id="domain" style="width:400px" value=process.env.DOMAIN)
                               tr
                                 td
@@ -247,6 +249,8 @@ block content
                     }
                   }
                    window.localStorage.setItem('request_url', url);
+                  window.localStorage.setItem('client_id', document.getElementById('client_id').value);
+                  window.localStorage.setItem('redirect_uri', document.getElementById('redirect_uri').value);
                    location.href = url;
 
             }
@@ -272,6 +276,7 @@ block content
                   }else {
 
                   document.getElementById('request_url').innerHTML = localStorage.getItem('request_url');
+
                   }
 
 
