@@ -12,7 +12,15 @@ const {
 
 console.log(VERCEL_URL);
 
-const appUrl = `${APP_URL}` || `https://${VERCEL_URL}` || `http://localhost:${PORT}`;
+const appUrl = "";
+if (process.env.APP_URL) {
+  appUrl = `${APP_URL}`
+} else if (process.env.VERCEL_URL) {
+  appUrl = `https://${VERCEL_URL}`
+} else {
+  `http://localhost:${PORT}`
+}
+
 
 function checkUrl() {
   return (req, res, next) => {
