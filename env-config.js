@@ -14,11 +14,11 @@ console.log(VERCEL_URL);
 
 var appUrl = "";
 if (process.env.APP_URL) {
-  appUrl = `${APP_URL}`
+  appUrl = process.env.APP_URL;
 } else if (process.env.VERCEL_URL) {
-  appUrl = `https://${VERCEL_URL}`
+  appUrl = `https://${VERCEL_URL}`;
 } else {
-  appUrl = `http://localhost:${PORT}`
+  appUrl = `http://localhost:${PORT}`;
 }
 
 console.log(appUrl);
