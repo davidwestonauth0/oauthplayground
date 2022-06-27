@@ -12,9 +12,7 @@
 -
     const GOOGLE_CLIENT = process.env.GOOGLE_CLIENT
 
-    const APP_URL = process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_GITHUB_REPO}-git-master-${process.env.VERCEL_GITHUB_ORG.toLowerCase()}.vercel.app`
-      : `http://localhost:${process.env.PORT}`;
+    const APP_URL = `https://${process.env.VERCEL_URL}` || `http://localhost:${process.env.PORT}`;
 
 doctype html
 html
