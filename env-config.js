@@ -10,9 +10,17 @@ const {
   PORT = 3000,
 } = process.env;
 
-const appUrl = VERCEL_URL
-  ? `https://${VERCEL_GITHUB_REPO}-git-master-${VERCEL_GITHUB_ORG.toLowerCase()}.vercel.app`
-  : `http://localhost:${PORT}`;
+console.log(VERCEL_URL);
+
+var appUrl = "";
+if (process.env.APP_URL) {
+  appUrl = `${APP_URL}`
+} else if (process.env.VERCEL_URL) {
+  appUrl = `https://${VERCEL_URL}`
+} else {
+  appUrl = `http://localhost:${PORT}`
+}
+
 
 function checkUrl() {
   return (req, res, next) => {
