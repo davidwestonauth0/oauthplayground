@@ -12,7 +12,7 @@ const {
 
 console.log(VERCEL_URL);
 
-const appUrl = "";
+var appUrl = "";
 if (process.env.APP_URL) {
   appUrl = `${APP_URL}`
 } else if (process.env.VERCEL_URL) {
