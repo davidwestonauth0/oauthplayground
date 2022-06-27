@@ -21,7 +21,7 @@ if (process.env.APP_URL) {
   appUrl = `http://localhost:${PORT}`
 }
 
-
+console.log(appUrl);
 function checkUrl() {
   return (req, res, next) => {
     const host = req.headers.host;
