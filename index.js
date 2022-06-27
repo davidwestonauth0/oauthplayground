@@ -149,7 +149,7 @@ app.get("/authorization_code", async (req, res, next) => {
           next(err);
         }
   } else {
-
+        req.session.destroy();
       try {
         res.render("authorization_code", {
         client_id: req.session.client_id, client_secret: req.session.client_secret});
@@ -296,7 +296,7 @@ app.get("/authorization_code_pkce", async (req, res, next) => {
           next(err);
         }
   } else {
-
+        req.session.destroy();
       try {
         res.render("authorization_code_pkce", {
         client_id: req.session.client_id, client_secret: req.session.client_secret});
@@ -856,7 +856,6 @@ app.post("/passwordless", async (req, res, next) => {
             json: {
               client_id: req.body.client_id,
               connection: req.body.connection,
-              client_secret: req.body.client_secret,
               send: req.body.send,
               authParams: { redirect_uri: req.body.redirect_uri, audience: req.body.audience, scope: getScope(req), response_type: req.body.response_type, response_mode: req.body.response_mode, nonce: req.body.nonce, state: req.body.state }
             },
@@ -866,9 +865,14 @@ app.post("/passwordless", async (req, res, next) => {
               'auth0-forwarded-for': req.body.user_ip
           }
       }
-//        if (req.body.client_secret.length>0 && req.body.client_id == process.env.CLIENT_ID) {
-//          clientServerOptions.json.client_secret = req.body.client_secret
-//        }
+
+      if (req.body.send == "link") {
+        clientServerOptions.json.client_id = process.env.CLIENT_ID_PASSWORDLESS;
+      }
+
+        if (req.body.client_secret.length>0 && req.body.client_id == process.env.CLIENT_ID) {
+          clientServerOptions.json.client_secret = req.body.client_secret
+        }
       var username = "";
        if (req.body.email!="" && req.body.connection == "email") {
         clientServerOptions.json.email = req.body.email;
