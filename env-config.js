@@ -12,7 +12,7 @@ const {
 
 console.log(VERCEL_URL);
 
-const appUrl = `https://${VERCEL_URL}` || `http://localhost:${PORT}`;
+const appUrl = `${APP_URL}` || `https://${VERCEL_URL}` || `http://localhost:${PORT}`;
 
 function checkUrl() {
   return (req, res, next) => {
