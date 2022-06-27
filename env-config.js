@@ -18,7 +18,7 @@ if (process.env.APP_URL) {
 } else if (process.env.VERCEL_URL) {
   appUrl = `https://${VERCEL_URL}`
 } else {
-  `http://localhost:${PORT}`
+  appUrl = `http://localhost:${PORT}`
 }
 
 
