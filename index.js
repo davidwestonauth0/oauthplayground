@@ -149,7 +149,6 @@ app.get("/authorization_code", async (req, res, next) => {
           next(err);
         }
   } else {
-        req.session.destroy();
       try {
         res.render("authorization_code", {
         client_id: req.session.client_id, client_secret: req.session.client_secret});
@@ -296,7 +295,6 @@ app.get("/authorization_code_pkce", async (req, res, next) => {
           next(err);
         }
   } else {
-        req.session.destroy();
       try {
         res.render("authorization_code_pkce", {
         client_id: req.session.client_id, client_secret: req.session.client_secret});
@@ -1368,11 +1366,11 @@ app.post("/user_info", async (req, res, next) => {
 
             if (response.statusCode == 200) {
                    res.render("user_info", {
-                     request: clientServerOptions, response: response, data: response.body, access_token: access_token
+                     request: clientServerOptions, response: response, data: response.body, access_token: req.body.access_token
                    });
             } else {
                 res.render("user_info", {
-                request: clientServerOptions, response: response, error: response.body, access_token: access_token
+                request: clientServerOptions, response: response, error: response.body, access_token: req.body.access_token
                 });
             }
 

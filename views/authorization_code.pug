@@ -104,12 +104,11 @@ block content
                                 td
                                     p(class="required tooltip", data-toggle='tooltip', data-placement='right', title='Your applications ID') client_id:
                                 td
-                                    if client_id
-                                        input(type="text" required name="client_id" id="client_id" style="width:400px" value=client_id)
-                                    else
-                                        select(name="client_id" required id="client_id" style="width:400px")
-                                          option(value=process.env.CLIENT_ID) #{process.env.CLIENT_ID} (New UL)
-                                          option(value=process.env.CLIENT_ID_PASSWORDLESS) #{process.env.CLIENT_ID_PASSWORDLESS} (Classic with Passwordless)
+                                    select(name="client_id" required id="client_id" style="width:400px")
+                                      if client_id
+                                          option(value=client_id) #{client_id}
+                                      option(value=process.env.CLIENT_ID) #{process.env.CLIENT_ID} (New UL)
+                                      option(value=process.env.CLIENT_ID_PASSWORDLESS) #{process.env.CLIENT_ID_PASSWORDLESS} (Classic with Passwordless)
                                     input(type="hidden" name="domain" id="domain" style="width:400px" value=process.env.DOMAIN)
                               tr
                                 td
