@@ -1412,7 +1412,7 @@ app.post("/call_api", async (req, res, next) => {
                    });
             } else {
                 res.render("call_api", {
-                request: clientServerOptions, response: response, error: response.body.data.message, access_token: req.session.access_token
+                request: clientServerOptions, response: response, error: response.body, access_token: req.session.access_token
                 });
             }
 
