@@ -14,13 +14,13 @@
 
     
     var APP_URL = "";
-if (process.env.APP_URL) {
-  APP_URL = process.env.APP_URL
-} else if (process.env.VERCEL_URL) {
-  APP_URL = 'https://${process.env.VERCEL_URL}'
-} else {
-  APP_URL = 'http://localhost:${PORT}'
-}
+    if (process.env.APP_URL) {
+        APP_URL = process.env.APP_URL;
+    } else if (process.env.VERCEL_URL) {
+        APP_URL = 'https://${process.env.VERCEL_URL}';
+    } else {
+        APP_URL = 'http://localhost:${PORT}';
+    }
 
 doctype html
 html
