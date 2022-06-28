@@ -3,6 +3,7 @@
 The Regular Web App is a simple express application that implements Auth0 authentication.
 
 ## Version 3.0
+
 This version of the regular web app is the starting place used in A0FUN-M06-L01 Create an Working with APIs.
 
 ### Run Local:
