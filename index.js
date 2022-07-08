@@ -868,7 +868,7 @@ app.post("/passwordless", async (req, res, next) => {
         clientServerOptions.json.client_id = process.env.CLIENT_ID_PASSWORDLESS;
       }
 
-        if (req.body.client_secret.length>0 && req.body.client_id == process.env.CLIENT_ID && !req.body.send == "link") {
+        else if (req.body.client_secret.length>0 && req.body.client_id == process.env.CLIENT_ID) {
           clientServerOptions.json.client_secret = req.body.client_secret
         }
       var username = "";
